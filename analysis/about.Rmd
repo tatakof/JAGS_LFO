@@ -7,4 +7,4 @@ editor_options:
   chunk_output_type: console
 ---
 
-Describe your project.
+In this project I'll try to implement Leave-Future-Out Cross validation on JAGS model outputs. 

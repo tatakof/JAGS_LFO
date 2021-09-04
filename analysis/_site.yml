@@ -1,7 +1,7 @@
-name: "JAGS_LFO"
+name: JAGS_LFO
 output_dir: ../docs
 navbar:
-  title: "JAGS_LFO"
+  title: JAGS_LFO
   left:
   - text: Home
     href: index.html
@@ -9,6 +9,10 @@ navbar:
     href: about.html
   - text: License
     href: license.html
+  right:
+  - icon: fa-github
+    text: Source code
+    href: https://github.com/franfram/JAGS_LFO
 output:
   workflowr::wflow_html:
     toc: yes

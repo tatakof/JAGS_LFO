@@ -1,0 +1,677 @@
+---
+title: "Untitled"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+Bugs:
+
+-   there may be duplicated parts
+
+-   math display bugs: try a different theme and see if it changes
+
+index:
+
+-   why are we interested in prediction accuracy? (good paragraph from gelman).
+
+-   what is IC doing? (good shit from gelman and from lambert).
+
+-   what should we do if we are doing LOO-CV. for illustration and to stand the difference with LFO-CV
+
+-   what should we do if we are doing LFO-CV.
+
+------------------------------------------------------------------------
+
+[**from colah's blog**]{.ul}: <https://colah.github.io/posts/2015-09-Visual-Information/>
+
+There is simply a fundamental limit. Communicating what word was said, what event from this distribution occurred, requires us to communicate at least 1.75 bits on average. No matter how clever our code, it's impossible to get the average message length to be less. **We call this fundamental limit the entropy of the distribution** -- we'll discuss it in much more detail shortly.
+
+If we want to understand this limit, the crux of the matter is understanding the trade off between making some codewords short and others long. Once we understand that, we'll be able to understand what the best possible codes are like.
+
+**So, why should you care about cross-entropy? Well, cross-entropy gives us a way to express how different two probability distributions are. The more different the distributions p and q are, the more the cross-entropy of p with respect to q will be bigger than the entropy of p.**
+
+**Similarly, the more different p is from q, the more the cross-entropy of q with respect to p will be bigger than the entropy of q**.
+
+**The really interesting thing is the difference between the entropy and the cross-entropy**. That difference is how much longer our messages are because we used a code optimized for a different distribution. If the distributions are the same, this difference will be zero. As the difference grows, it will get bigger.
+
+We call this difference the Kullback--Leibler divergence, or just the KL divergence. The KL divergence of p with respect to q, Dq(p)
+
+,^[5](http://colah.github.io/posts/2015-09-Visual-Information/#fn5)^ is defined:^[6](http://colah.github.io/posts/2015-09-Visual-Information/#fn6)^
+
+Dq(p)=Hq(p)−H(p)
+
+If you expand the definition of KL divergence, you get:
+
+Dq(p)=∑xp(x)log2(p(x)q(x))
+
+That might look a bit strange. How should we interpret it? Well, log2(p(x)q(x)) is just the difference between how many bits a code optimized for q and a code optimized for p would use to represent x. The expression as a whole is the expected difference in how many bits the two codes would use <!--# maybe replace "code optimized" for "distribution" or "assumed distribution" and it will make more sense in terms of bayesian data analysis. -->.
+
+**The really neat thing about KL divergence is that it's like a distance between two distributions. It measures how different they are**! (If you take that idea seriously, you end up with information geometry.)
+
+**Cross-Entropy and KL divergence are incredibly useful in machine learning. Often, we want one distribution to be close to another. For example, we might want a predicted distribution to be close to the ground truth. KL divergence gives us a natural way to do this, and so it shows up everywhere.**
+
+------------------------------------------------------------------------
+
+[**from aurelion geron**]{.ul}: <https://www.youtube.com/watch?v=ErfnhcEV1O8&t=324s>
+
+cross entropy is a very comon cost function when training a machine learning classifier.
+
+To transmit one bit of information means to reduce the recipient uncertainty by a factor of 2.
+
+The uncertainty reduction is the inverse of the events probability. If the event A's probability is 0.5 and somebody told you the outcome is in fact A, then the reduction in uncertainty is 1/0.5 = 2. If the events probability is 0.75, then the uncertainty reduction is 1/0.75 = 4/3.
+
+**The entropy H(p) is a measure of how uncertain the events are. It measures the average amount of information that you get from one sample drawn from a given probability distribution P. It tells you how unpredictable that probability distribution is.**
+
+$H(\pmb{p})-\sum_i \, p_i \,\, log_2(p_i)$
+
+NOTE: If there are 8 possible states of an event and all are equally likely, and then somebody tells you which state is going to happen, then they reduced your uncertainty by a factor of 8. This means they gave you 3 bits of information ($2^3 = 8$). The number of bits of information $(3)$ that were actually communicated can be found computing the binary logarithm $log_2 ()$ of the **uncertainty reduction factor** $(8)$, thus $log_2 (8) = 3$. In a more general way, where there are many posible states of an event and where the probabilities of each of the states aren't equal, the uncertainty reduction factor is just the inverse of the probability of a given state: if some state A has a probability of 0.25 and you somebody tells you that the state A will in fact happend, now the uncertainty reduction factor is 1/0.25 and thus the amount of information provided is $log_2(1/0.25) = 2$ bits. Now, the $log(1/x) = - \, log(x)$, so the equation to compute the number of bits simplifies to $- \, log_2(0.25) = 2$. The information that you are going to get, on average, is equal to the probability of each state times the amount of information it provides, thus: $-\sum_i \, p_i \, log_2(p_i)$, which is in fact the entropy $H(\pmb{p})$
+
+Cross entropy is the average message length.
+
+Cross entropy can be expressed as a function of both the true probability distribution **p** and the predicted probability distribution **q**
+
+Cross entropy: $H(\pmb{p, q})-\sum_i \, p_i \,\, log_2(q_i)$
+
+**The cross entropy equation looks very much like the entropy equation, but instead of computing the log of the true probability, we use the log of the predicted probability, which is equal to the message length. If our predictions are perfect, thats is the predicted distribution is equal to the true distribution, then the cross-entropy is simply equal to the entropy**. But if the distributions differ, then the cross-entropy will be greater than the entropy by some number of bits (m' so i guess its somehow related to the specific "encoding", but what is this encoding mean? the distribution you think thats true? that is, the predicted distribution?. ). **This amount by which the cross-entropy exceeds the entropy is called the relative entropy, or more commonly the Kullback-Leibler Divergence (or KL Divergence)**. Thus:
+
+Cross-entropy = Entropy + KL Divergence
+
+Or, equivalently, the KL Divergence (noted $D_{KL} (\pmb{p} || \pmb{q})$) is equal to the cross-entropy $H(\pmb{p, q})$ minus the entropy $H(\pmb{p})$.
+
+$D_{KL} (\pmb{p} || \pmb{q}) = H(\pmb{p, q}) - H(\pmb{p})$
+
+NEED TO CHECK THE FINAL EXAMPLE
+
+------------------------------------------------------------------------
+
+from Adian Liusie <https://www.youtube.com/watch?v=0GCGaw0QOhA>
+
+Shannon Entropy measures the uncertainty of a probability distribution.
+
+more uncertainty, more entropy
+
+------------------------------------------------------------------------
+
+[**from info theory book**]{.ul}:
+
+logs turn multiplication into sums. m' and thats much stable due to? numerical over and underflow?
+
+------------------------------------------------------------------------
+
+[**from mathmatical monk on logsumexp**]{.ul} <https://www.youtube.com/watch?v=-RVM21Voo7Q&t=2s>
+
+underflow: when you are trying to represent a number on a computer and the number is to small to represent. When you get a super small numer, it automatically sets to 0 in some programming languages <!--# this is what happens in R -->.
+
+**underflow can be fixed with the log-sum-exp trick**.
+
+underflow tends to happen when you multiply many probabilities together or when you many data and compute the probability of a given event.
+
+When you want to represent a very small number you can use logs.
+
+If u have Z = P(A) \* P(B) \* P(C), then
+
+Z = exp(logP(A) + logP(B) + logP(C)), but this way Z will still be very small, so we need log(Z), then
+
+log(Z) = log (exp(logP(A) + logP(B) + logP(C)))
+
+If we have a sum, such as $\sum_{i=1}^N P(A|Bi) * P(Bi) = Z$, then
+
+Z = sum( exp( logP(A\|Bi) + logP(Bi) ) ), and
+
+log(Z) = log( sum( exp( logP(A\|Bi) + logP(Bi) ) ) )
+
+but theres a problem because if for example P(Bi) is small, then logP(Bi) is going to be a negative but big in module number, and taking the exp of that will end up underflowing to 0. So a fix to that is...
+
+TO BE CONTINUED (LEFT AT MIN 6:40)
+
+------------------------------------------------------------------------
+
+[**from luis serrano's vid**]{.ul}: <https://www.youtube.com/watch?v=9r7FIXEAGvs>
+
+products are small and volatile, sums are good
+
+**log is a function that turns products into sums due to the following identity**: $log(a*b) = log(a) + log(b)$.
+
+------------------------------------------------------------------------
+
+from <https://www.youtube.com/watch?v=tRsSi_sqXjI>
+
+cross entropy is a way to measure the distance between two probability vectors (m' also between distributions?). **Cross entropy is not symmetric**
+
+------------------------------------------------------------------------
+
+[**from ben lambert's KL divergence video**]{.ul} <https://www.youtube.com/watch?v=LJwtEaP2xKA&list=PLwJRxp3blEvZ8AKMXOy0fc0cqT61GsKCG&index=34>:
+
+So the kullback liebler divergence us exactly the difference in the lenth or the expected length of code messages written in the two different encodings for a language written in P. So the KL divergence provides a kind of measure of informational cost. The informational cost that it measures is the increased length of messages from using a sub optimal encoding of a given language. The KL divergence kind of provides a lower bound on informational cost.
+
+------------------------------------------------------------------------
+
+from ben lambert's Ideal measure of a model's predictive fit. <https://www.youtube.com/watch?v=MEqrDu-ytM8&list=PLwJRxp3blEvZ8AKMXOy0fc0cqT61GsKCG&index=35>.
+
+Given a posterior distribution $p(\theta | \pmb{x})$, we can produce a posterior predictive distribution, which for a single new data point equals $p(x^{new} | \pmb{x})$ (more detail on this on here NOTE), and this just tells us what is our sort of best prediction or distribution which ecompasses what we think about predictions for the next data point given that we have observed a data vector $\pmb{x}$. This distribution $p(x^{new} | \pmb{x})$ is an approximation to some unkown true data generating process which, we can call $f(x^{new})$. Ideally, if we knew what the distribution $f(x^{new})$ was, we could compare it with our posterior predictive distribution $p(x^{new} | \pmb{x})$. The best way we could compare this two distributions (if we knew both of them), is with what is called the Kullback-Leibler divergence ($D_{KL}$, also known as "relative entropy"), which is just a general measure of the difference between two distributions.
+
+<!--# from wiki: The KL divergence is a measure of how one probability distribution is different from a second, reference probability distribution. In the simplified case, a relative entropy of 0 indicates that the two distributions in question have identical quantities of information. [...] Consider two probability distributions P and Q. Usually, P represents the data, the observations, or a measures probability distribution. Distribution Q represents instead a theory, a model, a description or an approximation of P. The KL divergence is then interpreted as the average difference of the number of bits required for encoding samples of P using a code optimized for Q rather than one optimized for P (('m im starting to think that "code" is equivalent to "distribution" in statistics, because codes that are optimized always imply a certain distribution, since the optimization aims to use shorter codes for very likely outcomes')). [...] Various conventions exist for referreing to $D_{KL}(P||Q)$ in words. Often it is referred to as the divergence between P and Q, but this fails to convey the fundamental asymmetry in the relation. Sometimes, as in this article, it may be described as the divergence of P from Q or as the divergence from Q to P. This reflects the asymmetry in Bayesian inference, which starts from a prior Q and updates to the posterior P. Another common way to refer to $D_{KL}(P||Q)$ is as the relative entropy of P with respect to Q.  -->
+
+The Kullback-Leibler divergence in going from $f(x^{new})$ (our true distribution) to our posterior predictive distribution $P(x^{new} | \pmb{x})$ is equal to:
+
+$$
+D_{KL}(f(x^{new}) \rightarrow p(x^{new} | \pmb{x} )) = \int f(x^{new})\ log\ f(x^{new})dx^{new}\ -\ \int f(x^{new})\ log\ p(x^{new}| \pmb x)\ dx^{new} 
+$$
+
+The first term, $\int f(x^{new})\ log \ f(x^{new})dx^{new}$ <!--# isnt there a minus sign missing at the beggining? or is it that the second term "should" come first and there's a minus minus sign (thus plus sign) to the first term? -->, is essentially a constant because it only depends on $f(x^{new})$ and so that doesn't tell us anything about how well our model fits the data (and there's nothing we can do about that term). Whereas the second term, $\int f(x^{new})\ log\ p(x^{new}| \pmb x)\ dx^{new}$ , contains $f(x^{new})$ (our unknown true data generation process) but also the posterior predictive distribution $p(x^{new} | \pmb{x})$ which depends on the model that we fit (so there's something we can do about this term). This second term is called the "Expected Log Predictive Density" (ELPD) <!--# "expected" cuz we are integrating with respect to xnew? check gelman -->. We want to minimize the KL divergence because when $D_{KL} = 0$, then $f(x^{new}) = p(x^{new} | \pmb{x})$ (that is, our approximation $p(x^{new} | \pmb{x})$ of the unknown true data generation process $f(x^{new})$ is correct). And the only way we can minimize the KL divergence is by maximizing the ELPD <!--# maximizing because of the minus sign -->.
+
+The reason why the second term is called the Expected Log Predictive Density (ELPD) is that, since we are integrating with respect to $x^{new}$, what we obtain is the expected value $E$ under the true data generating process $f$ (thus, $E_f$) of the log of the predictive density $log \ p(x^{new} | \pmb{x})$ (the posterior predictive distribution is also called "predictive density").
+
+$$
+ELPD = E_f\  [ log\ p(x^{new} | \pmb{x}) ] 
+$$
+
+Is important to note that the ELPD is an ideal measure of a models fit to data, because it assumes that we actually know $f$, whereas in practice we never know it. So what we do instead is try to estimate it, so what we get is $\widehat{ELPD}$.
+
+------------------------------------------------------------------------
+
+from ben lambert's vid on Evaluating model fit through AIC, DIC, WAIC and LOO-CV: <https://www.youtube.com/watch?v=xS4jDHQfP2o&list=PLwJRxp3blEvZ8AKMXOy0fc0cqT61GsKCG&index=60>
+
+In this video im going to talk through some of the most common metrics for evaluating the predictive fit of your model to data, specificly AIC, DIC, WAIC and LOO-CV. So that the idea which is common to all of these criteria is that we have a sample of data and we use that sample of data to fit our model. However, what we would like to do is we would like to know how well our model generalizes to out of sample prediction. So, ideally, what we would do is we would fit our model using one sample of data and then evaluate its predictive fit on another set of data. However, in real life data can be hard to come by and so we dont necessarily have an independent data set on which to evaluate the fit of our model, so often what we're forced to do is to evaluate the fit of our model to data using the same sample that we used to fit our model in the first place. So we are trying to determine how well our model generalizes to a new sample of data but using the same sample of data and not a new one, which brings a few problems. One of the main problems is selection bias <!--# need to know what this actually is --> , because of the fact that we are using sample of data to fit then test our model, we are going to have an issue with getting an overinflated sense of how well the model can predict and the sample data and we run into the issue of having an over fit model, which means that the model is fitting the noise in a data sample rather than only the signal. The cause of this overfitting is the build of a model which is overly complex for a given circumstance, and this overfit model wont actually generalize well to new samples of data. So all information criteria (which are the ones that use in sample data to predict out of sample accuracy) have to apply a kind of correction to correct for the fact that there is this selection bias going on. So all of this information criteria come out with some measure of out of sample predictive accuracy but each of them goes about obtaining a measure of a design for.
+
+------------------------------------------------------------------------
+
+MUST CHECK VEHTARIS CV FOR HIERARCHICAL MODELS BLOG POST: <https://avehtari.github.io/modelselection/rats_kcv.html>
+
+------------------------------------------------------------------------
+
+from be lamberts vid con estimating the posterior predictive distribution by sampling: <https://www.youtube.com/watch?v=TMnXQ6G6E5Y>
+
+theres an exact equation for the posterior predictive distribution but for most applied cases this equation requires intractable calculations to be done, so be cant obtain the exact posterior predictive distribution. Instead, we approximate it by sampling. The posterior predictive distribution is the probability distribution over some new data $\tilde{X}\ or\ X^{new}$ given that we have observed our sample $X$, that is $p(\tilde{X} | X)$.
+
+------------------------------------------------------------------------
+
+**FROM BEN LAMBERTS BOOK.**
+
+7.8 From Posterior to Predictions by Sampling.
+
+There are two sources of uncertainty in prediction: first, we do not know the true value of the parameters; and second, there is sampling variability <!--# i guess he means data sampling variability -->. The first of these sources of uncertainty is represented by the posterior. The second is represented by our choice of likelihood. To account for both these sources of variation, we typically derive an approximate distribution that represents our uncertainty over future data by iterating the following steps:
+
+1.  sample a parameter from the **posterior** distribution
+
+    $$
+    \theta_i \sim p(\theta | data)
+    $$
+
+2.  plug that value of $\theta_i$ into our sampling distribution (likelihood) and then sample a datapoint.
+
+$$
+data^{'}_i \sim p(data | \theta_i) 
+$$
+
+<!--# this comes from the vid: Then if we draw a histogram of all the sampled $data^{'}_{i}$ , we get an approximation to our posterior predictive distribution. -->
+
+By repeating these steps a large number of times (keeping each sampled data value), we eventually obtain a reasonable approximation to the posterior predictive distribution. This distribution represents our uncertainty over the outcome of a future data collection effort, accounting for our observed data and model choice. <!--# have to see if jags log_likelihood function actually does this -->
+
+10.5.1 Out-of-sample prediction and overfitting
+
+We build statistical models to explain the variation in a data sample because we believe that the insight this gives us applies to wider circumstances. One way to measure the wider applicability of a statistical model is to evaluate its predictive power on out-of-sample data. By fitting our model to one sample of data and then using it to predict data in another, we hope to produce an unbiased measure of a model's capacity to generalise. The problem is that we generally do not have access to out-of-sample data. (If we did, we would usually include this as part of our sample!) One way out of this issue is to use the same sample twice: once to fit the statistical model and again to test its predictive power. The trouble with this approach is that we bias the odds in our favour and leave ourselves susceptible to overfitting.
+
+If we try hard enough we can build a model that predicts a given data set perfectly, by adding layer upon layer of additional complexity. In producing a more complex model, we make more extreme assumptions about the data-generating process that may or, more likely, may not, be true. When we obtain a fresh data set, these assumptions are tested and often found wanting <!--# is "wanting" really the word? or is  -->, meaning that the model is terrible for prediction.
+
+In machine learning (a statistical framework for developing the most predictive models), overfitting is avoided by splitting a data set into a training set and a cross-validation set. The models are fitted to the training set, which is then assessed by its performance on an independent cross- validation set.
+
+<!--# why IC has been used more often than CV -->
+
+While we would ideally carry out this sort of partitioning in statistical inference (in fact, one measure we discuss, LOO-CV, does exactly this), often the computational task of refitting a model on many data sets makes it prohibitive to do so. **Also, the nature of the data can make it difficult to decide on an appropriate data split**. Among other reasons, these two issues have led to a demand for other measures of model predictive capability, which can be calculated without the need for re-estimation on a cross-validation set.
+
+These measures are, at best, approximations to the cross-validation ideal \[15\]. They aim to correct for the bias inherent in trying to assess a model's performance on the same data set which was used to fit the model in the first place.
+
+<!--# notice that earlier Ben asseses the problem with complex models, mainly that they assume too many things about the data generating process (if each thing assumed has a probability of being true, then the more things we assume are happening, the less likely it is), and this tends to make the model fit the "noise" (random jitter not inherent to the true generating process or "signal") instead of only the signal (i.e., the model overfits) -->
+
+If we obtain new data $\pmb{y^{new}} = \{y^{new}_1 , \ ..., \ y^{new}_n \}$ there are a few different ways we might measure the fit of a model. A popular way of summarising the discrepancy between the model's predictions $\pmb{y^{pred}} = \{y^{pred}_1 ,\ ..., \ y^{pred}_n \}$ and the real data $\pmb{y^{new}}$ is to measure the mean squared error (MSE) (maybe add the equation if you are not that lazy).
+
+This measure is easy to calculate but does not have any theoretical justification (apart from when a normal likelihood is used), which limits its scope. A more theoretically justified Bayesian measure would be to use the posterior predictive distribution to measure a model's ability to predict new data. In particular, we could choose a model with the highest posterior probability of generating the new data, $p(\pmb{y^{new} \ | \ y ) }$.
+
+Since the log function is a monotonic transformation, the score obtained by using the logarithm of the posterior predictive distribution will mirror the posterior predictive distribution. We favour using the log form because of its connection with a concept called the Kullback--Leibler (KL) divergence, which is a measure of the difference between the true density and the estimated one. If we maximise the log of the posterior predictive distribution, this is equivalent to estimating the posterior predictive density with the lowest KL divergence from the true density.
+
+The scoring function hence used is:
+
+$$
+prediction \ accuracy = log[p(\pmb{y^{new} | \ y})]
+$$
+
+which can also be written as:
+
+$$
+prediction \ accuracy = log \ \int p(\pmb{y^{new}} | \theta) \ p(\theta | \pmb{y}) d\theta  \ \ (10.4) 
+$$
+
+$$
+prediction\ accuracy = log[E_{posterior}(p(\pmb{y^{new}}\  |\ \theta  ))] 
+$$
+
+where $E_{posterior}$ denotes the expectation with respect to the posterior distribution.
+
+10.5.3 The ideal measure of a model's predictive accuracy.
+
+Imagine that we start by considering a single new data point, $y^{new}$. Usually, we do not have access to this extra data, and so the new data $y^{new}$ is unknown. If we knew the true distribution $f(y)$ for a single new data point, we could evaluate the expectation of the expression (10.4), which gelman et al \[14\] call the expected log predictive density (elpd):
+
+$$
+elpd = E_f(log[p(y^{new} | \pmb{y})])
+$$
+
+$$
+elpd = \int_{y^{new}\ \epsilon\ Y} f(y^{new})log[p(y^{new} | \pmb{y})]dy^{new} \ \ (10.6)
+$$
+
+where $E_f$ denotes the expectation under the true data distribution $f(y)$. This measure quantifies how close the estimated posterior predictive distribution, $p(y^{new} | \pmb{y})$, is to the true distribution, $f(y)$. Accordingly, expression (10.6) is maximised when the estimated distribution equals the true one (because in that case the $D_{KL} = 0$ and thus both distributions are the same).
+
+If we choose a model to maximise $elpd$, we also minimise the KL divergence between our posterior predictive distribution and the true data distribution.
+
+If we then consider the $elpd$ for our $n$ new data points, taken one at a time, we have what Gelman et al. \[14\] call the "expected log **pointwise** predictive density" (elppd):
+
+$$
+elppd = \sum_{i = 1}^{n}E_f( log[ p(y^{new} | \pmb{y} ])     (10.10)
+$$
+
+The pointwise measure defined in (10.10) is preferable to using the full joint predictive distribution $E_f(\ log\ [p(\pmb{y^{new}}\ |\ \pmb{y})]\ )$ because it enables a range of expressions representing out of sample error to be calculated from it \[14\]
+
+<!--# shouldnt there be an average? or is just the straight sum? -->
+
+... So, in general, we can think about the KL divergence as measuring some sort of informational penalty in going from something optimised to distribution p to code for another distribution q.
+
+10.5.8 LOO-CV
+
+As we discussed previously, the ideal measure of a model's predictive accuracy would be to split a data set into a training set and a cross-validation set. The model is then fitted on the training set, and its predictive performance gauged on the independent cross-validation set. The use of this independent cross-validation set **circumvents the issue of selection bias**, and allows us to be more confident in our estimates of the model's out-of-sample predictive capability.
+
+While the use of training and cross-validation sets provides a better measure of predictive accuracy in principle, there are practical concerns which limits its use. Here, we consider a method known as leave-one-out cross-validation (LOO-CV), where we use a single data point to test the model's predictive power, $y_{cv}$, and use the rest of the sample, $\pmb{y_{train}}$, to train the model. Ideally, this process is iterated $n$ times (where $n$ is the size of the data sample) so that each data point in the sample is used only once as the single cross-validation test datum in one of the iterations. This can be extremely expensive computationally speaking, particularly if the data set is large. Also, if the data are structured, as in te case of time series, it may be difficult to estimate the model with gaps in the data series (with the "gap" being the left out datum for testing).
+
+In each iteration of LOO-CV we evaluate the log posterior predictive density (across all samples from our posterior distribution):
+
+$$
+lpd = log[p(y_i|\pmb{y_{-i}})]
+$$
+
+where $\pmb{y_{i-1}}$ denotes the training data vector with all data points included apart from $y_i$ (the bold letter indicates that it's a vector instead of a scalar). If this process is iterated $n$ times, we can estimate the overall expected log pointwise predictive density by summing the invidiual $lpd$ values. Thus:
+
+$$
+\widehat{elppd} = \sum_{i = 1}^{n}\ log[p(y_i|\pmb{y_{-i}})]
+$$
+
+Estimates of $elppd$ by this method may underestimate the predictive accuracy of the full model because the training sample consists of only $n - 1$ data points rather than the full sample \[14\]. So a corrective term can be added for completeness; however, in paractice this term is small (particularly for large data sets), so it can usually be ignored. <!--# CHECK GELMANS PAPER BECAUSE WE MAY HAVE TO ADD THE CORRECTION TERM BECAUSE WE DONT HAVE THAT MANY DATA -->
+
+In using LOO-CV to choose between models, we also run the risk of overfitting. This is because, if we use LOO-CV to select a model, we will likely pick one that fits both the signal and noise in the cross-validation set. <!--# this is not really an explanation --> This is well documented in the machine-learning literature and merits the use of a third data set called the $test$ set, which is used only once to evaluate a model.
+
+**10.5.9** A practical summary of measures of predictive accuracy in simple terms.
+
+We have now introduced the theoretical ideal measure of a model's predictive accuracy and the various methods used to approximate this. Ultimately, we would like a measure that is Bayesian as well as a reasonable approximation for the out-of-sample predictive accuracy of a given model. While AIC and DIC are commonly used, they are not fully Bayesian in nature. WAIC is fully Bayesian as well as being closer to the ideal measure of a model's out-of-sample predictive accuracy. However, this method, like AIC and DIC, estimates out-of-sample predictive accuracy from within the same sample that was used to originally fit the model, meaning that post-hoc <!--# Post hoc (a shortened form of post hoc, ergo propter hoc) is a logical fallacy in which one event is said to be the cause of a later event simply because it occurred earlier. --> bias corrections are required to correct for overfitting. LOO-CV partitions the sample into a training set, which is used to fit the model, and a single cross-validation data point, which is used to estimate out-of-sample predictive accuracy. Since this method uses an independent data set to assess the predictive accuracy, it avoids the need to correct for the overfitting bias inherent in the other methods. In this respect, this method is the closest, and cleanest, approximation to the ideal measure of out-of-sample predictive accuracy. However, there is a penalty to LOO-CV, in that it requires repeated estimation on each of the $n$ training and cross-validation set pairs, which may be computationally infeasible for complex models. Also, both LOO-CV and WAIC require a partitioning of the data sample into subsamples, which may not be straightforward for situations where the data are structured (for example, in time series, panel or network data). AIC and DIC do not require such a partitioning and hence are more amenable in these circumstances.
+
+For a more thorough perspective on measures of model predictive accuracy, see \[14\] and \[15\], which served as invaluable references for this section.
+
+10.9 Chapter summary
+
+The reader should now understand how to critically assess a Bayesian model and choose between different models. Posterior predictive checks (PPCs) are used to compare the fit of a given model to some aspect of the sample data, and statistical measures like WAIC and LOO-CV are used to compare models in terms of their out-of-sample predictive accuracy. You may be wondering why we need both of these approaches. This is because the purpose of these two frameworks is different, although complementary. PPCs assess the fit of your model to the data at hand, whereas WAIC and LOO-CV assess the fit of your model to out-of-sample data. The trouble with blindly using PPCs to construct a model is that this can result in an overly complex model, which is overfit to the sample of data on which it was estimated. We guard against this overfitting by using WAIC and LOO-CV. In reality, these two different frameworks should be used in tandem throughout the modelling process; we would not want to choose a model with a good predictive accuracy but failed to represent some key aspect of variation seen in the data. It can also be useful to combine aspects of PPCs with measures of predictive accuracy. For example, we could partition our data set into a training and cross-validation set, and see how a model fitted to the former performs on PPCs on the latter.
+
+------------------------------------------------------------------------
+
+[**FROM "Understanding predictive information criteria for Bayesian models" GELMAN ET AL 2013.**]{.ul}
+
+We review the Akaike, deviance, and Watanabe-Akaike information criteria from a Bayesian perspective, where **the goal is to estimate expected out-of-sample-prediction error using a bias-corrected adjustment of within-sample error**.
+
+In other settings, however, we seek not to check models but to compare them and explore directions for improvement. Even if all of the models being considered have mismatches with the data, it can be informative to evaluate their predictive accuracy, compare them, and consider where to go next. **The challenge then is to estimate predictive model accuracy, correcting for the bias inherent in evaluating a model's predictions of the data that were used to fit it.** <!--# THIS THE CHALLENGE TO IC -->
+
+A natural way to estimate out-of-sample prediction error is cross-validation (see Geisser and Eddy, 1979, and Vehtari and Lampinen, 2002, for a Bayesian perspective), but researchers have always sought alternative measures, as cross-validation requires repeated model fits and can run into trouble with sparse data. For practical reasons alone, there remains a place for simple bias corrections such as AIC (Akaike, 1973), DIC (Spiegelhalter et al., 2002, van der Linde, 2005), and, more recently, WAIC (Watanabe, 2010), and all these can be viewed as approximations to different versions of cross-validation (Stone, 1977).
+
+Various difficulties have been noted with DIC (see Celeux et al., 2006, Plummer, 2008, and much of the discussion of Spiegelhalter et al., 2002) but there has been no consensus on an alternative.
+
+**One difficulty is that all the proposed measures are attempting to perform what is, in general, an impossible task: to obtain an unbiased (or approximately unbiased) and accurate measure of out-of-sample prediction error that will be valid over a general class of models and that requires minimal computation beyond that needed to fit the model in the first place**. When framed this way, it should be no surprise to learn that no such ideal method exists. But we fear that the lack of this panacea has impeded practical advances, in that applied users are left with a bewildering array of choices.
+
+In some ways, our paper is similar to the review article by Gelfand and Dey (1994), except that they were focused on model choice whereas our goal is more immediately to **estimate predictive accuracy for the goal of model comparison**.
+
+As we shall discuss in the context of an example, given the choice between two particular models, **we might prefer the one with higher expected predictive error** (WTF?) ; nonetheless we see predictive accuracy as one of the criteria that can be used to evaluate, understand, and compare models.
+
+2\. Log predictive density as a measure of model accuracy
+
+**One way to evaluate a model is through the accuracy of its predictions. Sometimes we care about this accuracy for its own sake, as when evaluating a forecast. In other settings, predictive accuracy is valued not for its own sake but rather for comparing different models.** We begin by considering different ways of defining the accuracy or error of a model's predictions, then discuss methods for estimating predictive accuracy or error from data.
+
+2.1 Measures of predictive accuracy.
+
+Consider data $y_1,\ …,\ y_n$, modeled as independent given parameters $\theta$, thus $p(y|\theta) = \prod_{i = 0}^{n}\ p(y_i | \theta)$. With regression, one would work with $p(y|\theta, x) = \prod_{i = 0}^{n}\ p(y_i | \theta,\ x_i)$. In our notation, we suppress any dependence on $x$.
+
+Preferably, the measure of predictive accuracy is specifically tailored for the application at hand, and it measures as correctly as possible the benefit (or cost) of predicting future data with the model. Often explicit benefit or cost information is not available and the predictive performance of a model is assessed by generic scoring functions and rules.
+
+**Measures of predictive accuracy for probabilistic prediction are called scoring rules** <!--# maybe just say whats behind the comment and add that there are other scoring rules besided the logarithmic one -->. Examples include the quadratic, logarithmic, and zero-one scores, whose properties are reviewed by Gneiting and Raftery (2007). Bernardo and Smith (1994) argue that suitable scoring rules for prediction are proper and local: propriety of the scoring rule motivates the decision maker to report his or her beliefs honestly, and for local scoring rules predictions are judged only on the plausibility they assign to the event that was actually observed, not on predictions of other events. The logarithmic score is the unique (up to an affine transformation) <!--# In Euclidean geometry, an affine transformation, or an affinity, is a geometric transformation that preserves lines and parallelism (but not necessarily distances and angles) --> local and proper scoring rule (Bernardo, 1979), and appears to be the most commonly used scoring rule in model selection.
+
+**Mean squared error**. A model's fit to new data can be summarized numerically by mean squared error, $\frac{1}{n}\ \sum_{i = 1}^{n}(y_i - E(y_i |\theta))^2$ , or a weighted version such as $\frac{1}{n}\ \sum_{i = 1}^{n}(y_i - E(y_i |\theta))^2 /var(y_i | \theta)$. These measures have the advantage of being easy to compute and, more importantly, to interpret, but the disadvantage of being less appropriate for models that are far from the normal distribution.
+
+**Log predictive density or log-likelihood**. Log predictive density or log-likelihood. A more general summary of predictive fit is the log predictive density, $log\ p(y|\theta)$ <!--# this is different from the log predictive density of ben lambert's book log p(ynew | \pmb{y}) -->, which is proportional to the mean squared error if the model is normal with constant variance. [**The log predictive density is also sometimes called the log-likelihood**]{.ul} <!--# SUPERRRR IMPORTNAT, THIS WHY I DIDNT REALLY GET THE CODE -->. **The log predictive density has an important role in statistical model comparison because of its connection to the Kullback-Leibler information measure** (see Burnham and Anderson, 2002, and Robert, 1996). **In the limit of large sample sizes, the model with the lowest Kullback-Leibler information---and thus, the highest expected log predictive density---will have the highest posterior probability. Thus, it seems reasonable to use expected log predictive density as a measure of overall model fit**.
+
+Given that we are working with the log predictive density, the question may arise: why not use the log posterior? Why only use the data model and not the prior density in this calculation? The answer is that we are interested here in summarizing the fit of model to data, and for this purpose he prior is relevant in estimating the parameters but not in assessing a model's accuracy.
+
+We are not saying that the prior cannot be used in assessing a model's fit to data <!--# with "prior" does he mean the "the new posterior" and thus by "likelihood" he means the posterior predictive density? which would be some sort of "posterior" likelihood, the likelihood after fitting the model, that is, the likelihood with the posterior parameters instead of the prior parameters. -->; **rather we say that the prior density is not relevant in computing predictive accuracy**. **Predictive accuracy is not the only concern when evaluating a model, and even within the bailiwick** <!--# Bailiwick nowadays means "one's area of skill, knowledge, authority, or work" --> **of predictive accuracy, the prior is relevant in that it affects inferences about** $\theta$ and thus af**fects any calculations involving** $p(y|\theta)$. In a sparse-data setting, a poor choice of prior distribution can lead to weak inferences and poor predictions.
+
+2.3. Predictive accuracy for a single data point.
+
+**The ideal measure of a model's fit would be its out-of-sample predictive performance for new data produced from the true data-generating process**. We label $f$ as the true model, $y$ as the observed data (thus, a single realization of the dataset $y$ from the distribution $f(y)$, and $\tilde{y}$ as future data or alternative datasets that could have been seen. The out-of-sample predictive **fit** for a **new** data point $\tilde{y_i}$ **using logarithmic score** <!--# NOTE THAT WE ARE USING LOGARITHMIC SCORE, SO NOW U CAN SAY SOMETHING LIKE "THERE ARE OTHER'S SCORING RULES BESIDES THE LOGARITHMIC SCORE" --> is then,
+
+$$
+log\ p_{post}(\tilde{y_i}) = log\ E_{post} (p(\tilde{y_i} | \theta) = log\ \int p(\tilde{y_i} | \theta)\ p_{post}(\theta)d \theta
+$$
+
+In the above expression, $p_{post}(\tilde{y_i})$ is the predictive density <!--# or posterior predictive density, which i think is the probability of generating ytilde with the given model, or in other way, how likely is this ytilde for the given model  --> for $\tilde{y_i}$ induced by the posterior distribution $p_{post}(\theta)$. We have introduced the notation $p_{post}$ here to represent the posterior distribution because our expressions will soon become more complicated and it will be convenient to avoid explicitly showing the conditioning. <!--# E_{post} denotes the expectation under the posterior distribution, that is the \int p_{post}\theta d\theta part. -->
+
+We must then take on further step. The future data $\tilde{y_i}$ are themselves unknown and thus we define the **expected** out-of-sample log predictive density,
+
+$$
+elpd = expected\ log\ predictive\ density\ for\ a\ new\ \pmb{single}\ data\ \pmb{point}
+$$
+
+$$
+elpd = E_f(log\ p_{post}(\tilde{y_i})) = \int (log\ p_{post}(\tilde{y_i}))\ f(\tilde{y_i})d \tilde{y}\ \ \ \ (1)
+$$
+
+($E_f$ denotes the expectation under the true data distribution $f(y)$).
+
+In the machine learning literature this is often called the mean log predictive density. In any application, we would have some $p_{post}$ but we do not in general know the data distribution $f$. A natural way to estimate the expected out-of-sample log predictive density would be to plung in an estimate for $f$, but this will tend to imply too good a fit, as we discuss in Section 3. For now we consider the estimation of predictive accuracy in a Bayesian context.
+
+To keep comparability with the given dataset <!--# EXPLAINED IN THE PARAGRAPH BELOW -->, one can define a measure of predictive accuracy for the $n$ data points taken one at a time:
+
+$$
+elppd = expected\ log\ \pmb{pointwise}\ predictive\ density\ for\ a\ new\ data\pmb{set}
+$$
+
+$$
+elppd = \sum_{i = 1}^{n}E_f(log\ p_{post}(\tilde{y_i}))\ \ \ \   (2)
+$$
+
+**which must be defined based on some agreed-upon division of the data** $y$ **into individual data points** $y_i$ <!--# THIS SEEMS TO BE SUPER IMPORTANT FOR HIERARCHICAL MODELS -->. The advantage of using a pointwise measure, rather than working with the joint posterior predictive distribution, $p_{post}(\tilde{y})$ is in the connection of the pointwise calculation to cross-validation, which allows some fairly general approaches to approximation of out-of-sample fit using available data.
+
+2.4 Evaluating predictive accuracy for a fitted model
+
+In practice the parameter $\theta$ is not known, so we cannot know the log predictive density $log\ p(y|\theta)$ <!--# i guess this is the probability density function of y given an exact value of theta, that is, how likely is each possible value of y if theta takes a certain form but there's no uncertainty on the form or value theta takes -->. For the reasons discussed above we would like to work with the posterior distribution, $p_{post}(\theta) = p(\theta | y)$, and summarize the predictive accuracy of the fitted model **to data** <!--# THIS IS OF OBSERVED DATA, NOT NEW DATA --> by,
+
+$$
+lppd = log\ pointwise\ predictive\ density
+$$
+
+$$
+lppd = log \prod_{i=1}^{n} p_{post}(y_i) = \sum_{i = 1}^{n}log \int p(y_i|\theta)\ p_{post}(\theta)d \theta \ \ \ \ (4)
+$$
+
+(remember that logs turn products into sums)
+
+To compute this predictive density in practice <!--# this seems to be what ben lambert explains above about how to compute the predictive density. Do a comparation between both of them later -->, we can evaluate the expectation using draws from $p_{post}(\theta)$, the usual posterior simulations, which we label $\theta^s$, $s = 1,\ …,\ S$:
+
+$$
+\pmb{computed}\ lppd = \pmb{computed}\ log\ pointwise\ predictive\ density
+$$
+
+$$
+= \sum_{i=1}^{n} log\ (\frac{1}{S} \sum_{s= 1}^{S} p(y_i | \theta^s)\ ) \ \ \ (5)
+$$
+
+(when we compute the lppd, we "replace" the $\int p_{post}(\theta)d\theta$ with $\frac{1}{S}\sum_{s=1}^{S}$, and we do it *pointwise* with the $\sum_{i=1}^n$ part)
+
+(remember that this is estimating out of sample predictive accuracy using in sample data and thus is an overestimation of $(2)$. That is, lppd is a biased estimate of elppd)
+
+We typically assume that the number of simulation draws $S$ is large enough to fully capture the posterior distribution; thus we shall refer to the theoretical value $(4)$ and the computation $(5)$ interchangeably as the "log pointwise predictive density" or lppd of the data.
+
+As we shall discuss in Section 3, the lppd of **observed** data $y$ is an overestimate of the elppd for future data $(2)$ <!--# SUPPA IMPORTANT -->. Hence the plan is like to start with $(5)$ and then apply some sort of bias correction to get a reasonable estimate of $(2)$. <!--# is this done automatically by the loo package? do we have to do it by hand when computing the exact LFO? see what buerkner does. -->
+
+2.5. Choices in defining the likelihood and predictive quantities
+
+As is well known in hierarchical modeling, the line separating prior distribution from likelihood is somewhat arbitrary <!--# WHY --> and is related to the question of what aspects of the data will be changed in hypothetical replications. In a hierarchical model with direct paramenters $\alpha_1,\ ...,\ \alpha_J$ and hyperparameters $\phi$, factored as $p(\alpha,\phi|y)\ \propto\  p(\phi) \prod_{j = 1}^{J} p(\alpha_j | \phi)\ p(y_j | \alpha_j)$ <!--# p(\alpha_j | \phi)p(\phi) seems to be the prior, whereas p(y_j | \alpha_j) seems to be the likelihood --> we can imagine replicating new data in **existing** groups (with the 'likelihood' being proportional to $p(y |\alpha_j)$) or new data in **new** groups (a new $\alpha_{J+1}$ is drawn, and the 'likelihood' is proportional to $p(y | \phi) = \int p(y|\alpha_{J+1})\ p(\alpha_{J+1} | \phi) d\alpha_{J+1}$ <!--# i wrote the equation the other way around because I prefer it like that -->. In either case, we can easily compute the posterior predictive density of the **observed** data $y$:
+
+-   When prediction $\tilde{y} |\alpha_j$ (that is, new data from **existing** groups), we can compute $p(y|\alpha_{j}^s)$ for each posterior simulation $\alpha_{j}^s$ and then take the average, as in $(5)$.
+
+-   When predicting $\tilde{y} |\alpha_{J+1}^s$ (that is, new data from a new group), we sample $\alpha_{J+1}^s$ from $p(\alpha_{J+1} |\phi^s)$ to compute $p(y|\alpha_{J+1}^s)$.
+
+We are not bothered by the nonuniqueness of the predictive distribution. Just as with posterior predictive checks, different distributions correspond to different potential uses of a posterior inference. <!--# SUPPA IMPORTANT FOR OUR CUSTOM LFO, WHICH I BELIEVE WE WOULD LIKE TO KNOW HOW WELL WE WOULD PREDICT ON A NEW LOCATION GIVEN THE DATA THAT WE CURRENTLY HAVE. MAYBE WE SHOULD HAVE THAT CORRECTIVE TERM GIVEN THE FEW ACTUAL DATA POINTS THAT WE HAVE (DOES A HIERARCHICAL MODEL REDUCE THE "EFFECTIVE" NUMBER OF DATAPOINTS?  -->. Given some particular data, a model might predict new data accurately in some scenarios but not in others <!--# WE HAVE TO DEFINE OUR SCENARIO, do we have one scenario or two? we clearly have the scenario of predicting data from a new location, so thats one. But for now, the scenario of predicting data from inside a location doesnt seem to matter that much. --> .
+
+Vehtari and Ojanen (2012) discuss different prediction scenarios where the future explanatory variable $\tilde{x}$ is assumed to be random, unknown , fixed, shifted, deterministic, or constrained in some way. Here we consider only scenarios with no $x$, $p(\tilde{x})$ is equal to $p(x)$, or $\tilde{x}$ is equal to $x$...
+
+3\. Information criteria and effective number of parameters
+
+<!--# problems with IC -->
+
+out-of-sample predictions will typically be less accurate than implied by the within-sample predictive accuracy. To put it another way, the accuracy of a fitted model's predictions of future data will generally be lower, in expectation, than the accuracy of the same model's predictions for observed data...
+
+We are interested in prediction accuracy for two reasons: first, to measure the performance of a model that we are using; second, to compare models. Our goal in model comparison is not necessarily to pick the model with lowest estimated prediction error or even to average over condidate models - ... - but at least to put different models on a common scale. **Even models with completely different parameterizations can be used to predict the same measurements**.
+
+**When different models have the same number of parameters estimated in the same way, one might simply compare their best-fit log predictive densities directly, but when comparing models of differing size or differing effective size** (for example, comparing logistic regressions fit using uniform, spline, or Gaussian process priors), **it is important to make some adjustment for the natural ability of a larger model to fit data better, even if only by chance** <!--# important for comparing our different models -->.
+
+3.1. Estimating out-of-sample predictive accuracy using available data
+
+**Several methods are available to estimate the expected predictive accuracy without waiting for out-of-sample data. We cannot compute formulas suchs as** $(1)$ **directly because we do not know the true distribution,** $f$**. Instead we can consider various approximations. We know of no approximation that works in general, but predictive accuracy is important enough that it is still worth trying... Each of these methods has flaws, which tells us that any predictive accuracy measure that we compute will be only approximate.**
+
+-   *Within-sample predictive accuracy*. A naive estimate of the expecte log predictive density for *new* data is the log predictive density for *existing* data. As discussed above, we would like to work with the bayesian pointwise formula, that is, lppd as computed using the simulation $(5)$. This summary is quick and easy to understand but is in general an overestimate of $(2)$ because it is evaluated on the data from which the model was fit.
+
+-   *Adjusted within-sample predictive accuracy*. Given that lppd is a biased estimate of elppd, the nest logical step is to correct that bias. Formulas such as AIC, DIC, and WAIC give approximately unbiased estimates of elppd by starting with something like lppd and then subtracting a correction for the number of parameters, or the effective number of parameters, being fit. These adjustments can give reasonable answers in many cases but have the general problem of being correct at best only in expectation, not necessarily in any given case.
+
+-   *Cross-validation.* One can attempt to capture out-of-sample prediction error by fitting the model to training data and then evaluating this predictive accuracy on a holdout set. **Cross-validation avoids the problem of overfitting but remains tied to the data at hand and thus can be correct at best only in expectation**. In addition, cross-validation can be computationally expensive: to get a stable estimate typically requires many data partitions and fits. At the extreme, leave-one-out cross-validation (LOO-CV) requires $n$ fits except when some computation shortcut can be used to approximate the computations.
+
+3.8. Leave-one-out cross-validation
+
+In Bayesian cross-validation, the data are repeatedly partitioned into a training set $y_{train}$ and a holdout set $y_{holdout}$, and then the model is fit to $y_{train}$ (thus yielding a posterior distribution $p_{train}(\theta) = p(\theta | y_{train})$), with this fit evaluated using an estimate of the log predictive density of the holdout data, $log\ p_{train}(y_{holdout}) = log \int p_{pred}(y_{holdout}|\theta)p_{train}(\theta)d\theta$. Assuming the posterior distribution $p(\theta|y_{train})$ is summarized by $S$ simulation draws $\theta^s$, we calculate the log predictive density as $log\ (\ \frac{1}{S} \sum_{s=1}^S p(y_{holdout} | \theta^s)\ )$.
+
+((i guess that $p_{train}(y_{holdout})$ is the predictive density for $y_{holdout}$ induced by the posterior distribution given by the data used to train, and thus the $p_{train}()$ part; this is a "parallel" that is made from the following thing written above "$p_{post}(\tilde{y_i})$ is the predictive density for $\tilde{y_i}$ induced by the posterior distribution $p_{post}(\theta)$."))
+
+For simplicity, we will restrict our attention here to leave-one-out cross-validation (LOO-CV), the special case with $n$ partitions in which each holdout set represents a single data point. Performing the analysis for each of the $n$ data points (or perhaps a random subset for efficient computation if $n$ is large) yields $n$ different inferences $p_{post(-1)}$, each summarized by $S$ posterior simulations, $\theta^{is}$.
+
+The Bayesian LOO-CV estimate of out-of-sample predictive fit is
+
+$$
+lppd_{loo-cv} = \sum_{i = 1}^{n} log\ p_{post(i-1)}(y_i),\ calculated\ as\ \sum_{i=1}^{n}log\ (\frac{1}{S} \sum_{s=1}^{S} p(y_i|\theta^{is})\ )\ \ \ \ (14) 
+$$
+
+Each prediction is conditiones on $n-1$ data points, which causes underestimation of the predictive fit. For large $n$ the difference is negligible, but for small $n$ (or when using k-fold cross-validation) we can use a first order bias correction $b$ by estimating how much better predictions would be obtained if conditioning on $n$ data points:
+
+$$
+b = lppd - \overline{lppd}_{-i}
+$$
+
+where
+
+$$
+\overline{lppd}_{-1} = \frac{1}{n} \sum_{i=1}^{n}\sum_{j=1}^{n} log\ p_{post(-i)}(y_j),\ calculated\ as\ \frac{1}{n} \sum_{i=1}^{n} \sum_{j=1}^{n} log\ (\ \frac{1}{S} \sum_{s=1}^{S} p(y_j | \theta^{is})\ )
+$$
+
+(don't really know what the $j$ subindex stands for here)
+
+The bias-corrected Bayesian LOO-CV is then
+
+$$
+lppd_{cloo-cv} = lppd_{loo-cv} + b
+$$
+
+The bias correction $b$ is rarely used as it is usually small, but we include it for completeness.
+
+To make comparisons to other methods, we compute an estimate of the effective number of parameters as
+
+$$
+p_{loo-cv} = lppd - lppd_{loo-cv}\ \ \ (15)
+$$
+
+or, using bias-corrected LOO-CV,
+
+$$
+p_{cloo-cv} = lppd - lppd_{cloo}
+$$
+
+$$ 
+= \overline{lppd}_{-i} - lppd_{loo}
+$$
+
+Cross-validation is like WAIC in that it requires data to be divided into disjoint, ideally conditionally independent, pieces. This represents a limitation of the approach when applied to structured models. In adittion, cross-validation can be computationally expensive except in settings where shortcuts are available to approximate the distributions $p_{post(-i)}$ without having to re-fit the model each time.
+
+Bayesian cross-validation works also with singular models <!--# according to https://arxiv.org/abs/1309.0911 "In this paper, we are concerned with Bayesian information criteria in the context of singular model selection problems, that is, problems that involve models with Fisher-information
+matrices that may fail to be invertible".  -->, and Bayesian LOO-CV has been proven to asymptotically equal to WAIC. For finite $n$ there is a difference, as LOO-CV conditions the posterior predictive densities on $n - 1$ data points. These differences can be apparent for small $n$ or in hierarchical models. <!--# i dunno if this is that important because is just about the difference between WAIC and LOO, but we aint doing WAIC, just LFO. -->
+
+Other differences arise in regression or hierarchical models. LOO-CV assumes the prediction task $p(\tilde{y_i} | \tilde{x_i}, y_{-i}, x_{-i})$ while WAIC estimates ... <!--# included this part only for the equation, the rest is a comparison with WAIC that doesn't seem relevant. -->
+
+The cross-validation estimates are similar to the jackknife (Efron and Tibshirani, 1993). Even though we are working with the posterior distribution, our goal is to estimate an expectation averaging over $y^{rep}$ <!--# not explained what yrep is -->in its true, unknown distribution, $f$; thus, we are studying the frequency properties of a Bayesian procedure.
+
+...
+
+In expectation. As can be seen above, AIC, DIC, WAIC, and $lppd_{loo-cv}$ all are random variables, in that their values depend on the data $y$, even if the model is known... <!--# maybe should re-check the example. -->
+
+...
+
+<!--# few equations evaluating the example -->
+
+...
+
+Despite what the notation might seem to imply, elppd is *not* the same as E(lppd); the former is the expected log pointwise predictive density for future data $\tilde{y}$, while the latter is this density evaluated at the observed data $y$ <!--# need to check -->.
+
+The correct 'effective number of parameters' (or bias correction) is the difference between $E(lppd)$ and $elppd$. <!--# more equations below. Might have to check. -->
+
+------------------------------------------------------------------------
+
+[**FROM STONES BOOK**]{.ul}
+
+2.3 Shannons Desiderata.
+
+One of the properties of Shannons mathematical definition of information is that it is Additive: "The information associated with a set of outcomes is obtained by adding the information of individual outcomes."
+
+2.4 Information, surprise and Entropy.
+
+The shannon information of an outcome is defined in terms of how "surprising" an outcome is.<!--# see how to relate this to uncertainty. Makes sense to talk about uncertainty of a distribution (does it?) but how do we talk about how uncertain we are about an outcome happening? --> . Since the probability of an outcome is inversely related to how surprised we are when it happens (something very likely to happen is not very surprising, whereas something very unlikely is), we could express the amount of surprise of an outcome value x to be $1/p(x)$, so that the amount of surprise associated with the outcome value x increases as the probability of x decreases. However, in order to satisfy the additivity condition above, shannon showed that it is better to define surprise as the $log_2 (1/p(x))$ (this is known as the "Shannon information of x")
+
+**Entropy is average shannon information**
+
+In practice, we are not usually interested in the surprise of a particular value of a random variable, but we would like to know how much surprise, on avergae, is associated with the entire set of possible values. That is, we would like to know the average surprise defined by the probability distribution of a random variable. The average surprise of a variable $X$ which has a distribution $p(X)$ is called the entropy of $p(X)$, and is represented as $H(X)$ . Thus, the entropy is just the average shannon information. E.g., if we have a sequence of outcomes $(x_1,\ ..., \ x_n)$. then the entropy or shannon information of that sequence is:
+
+$$
+H(X) \approx \frac{1}{n} \sum_{i = 1}^{n} log \frac{1}{p(x_i)}
+$$
+
+TO BE CONTINUED.... (page 34)
+
+p79. The uncertainty we have about the value of Y is initially summarised by its entropy H(Y)
+
+p84. Just as the entropy of a single variable (with finite bounds) can be considered to be a measure of its uniformity <!--# dont really get what he means with uniformity, because "uniformity" seems more like something related to variance rather than something related to an average -->, so the entropy of a joint distribution is also a measure of its uniformity (provided X and Y lie within a fixed range).
+
+------------------------------------------------------------------------
+
+wiki KL divergence <https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence>
+
+In [mathematical statistics](https://en.wikipedia.org/wiki/Mathematical_statistics "Mathematical statistics"), the **Kullback--Leibler divergence,** $D_{KL}$ (also called **relative entropy**), is a measure of how one [probability distribution](https://en.wikipedia.org/wiki/Probability_distribution "Probability distribution") is different from a second, reference probability distribution... In contrast to [variation of information](https://en.wikipedia.org/wiki/Variation_of_information "Variation of information"), it is a distribution-wise *asymmetric* measure and thus does not qualify as a statistical *metric* of spread -- it also does not satisfy the [triangle inequality](https://en.wikipedia.org/wiki/Triangle_inequality "Triangle inequality"). In the simple case, a relative entropy of 0 indicates that the two distributions in question have identical quantities of information. In simplified terms, it is a measure of surprise...
+
+Consider two probability distributions $P$ and $Q$. Usually, $P$ represents the data, the observations, or a measured probability distribution. Distribution $Q$ represents instead a theory, a model, a description or an approximation of $P$. The KL divergence is then interpreted as the average difference of the number of bits required for enconding samples of $P$ using a code optimized for $Q$ rather than one optimized for $P$.
+
+Various conventions exist for referring to $D_{KL}(P || Q)$ in words. Often it is referred to as the divergence between $P$ and $Q$, but this fails to convey the fundamental asymmetry in the relation. Sometimes, it may be described as the divergence of $P$ from $Q$ or as the divergence from $Q$ to $P$. This reflects the asymmetry in Bayesian inference, which starts from a prior $Q$ and updates to the posterior $P$. Another common way to refer to $D_{KL}(P || Q)$ is as the relative entropy of $P$ with respect to $Q$.
+
+The relative entropy from $Q$ to $P$ is often denoted $D_{KL}(P || Q)$.
+
+In the context of machine learning, $D_{KL}(P || Q)$ is often called the infromation gain achieved if $P$ would be used instead of $Q$ which is currently used. By analogy with information theory, it is called the relative entropy of $P$ with respect to $Q$.
+
+Expressed in the language of Bayesian inference, $D_{KL}(P || Q)$ is a measure of the information gained by revising one's beliefs from the prior probability distribution $Q$ to the posterior probability distribution $P$. In other words, it is the amount of information lost when $Q$ is used to approximate $P$. In applications. $P$ typically represents the "true" distribution of data, observations, or a precisely calculated theoretical distribution, while $Q$ typically represents a theory, model, description, or approximation of $P$. In order to find a distribution $Q$ that is closest to $P$, we can minimize the KL divergence and compute an information projection.
+
+Although it is often intuited as a way of measuring the distance between probability distributions, the KL divergence is not a true metric. It does not obey the Triangle Inequality, and in general $D_{KL}(P || Q)$ does not equal $D_{KL}(Q || P)$.
+
+Arthur Hobson proved that relative entropy is the only measure of difference between probability distributions that satisfies some desired properties, which are the canonical extension to those appearing in a commonly used characterization of entropy. Consequently, mutual information is the only measure of mutual dependence that obeys certain related conditions, since it can be defines in terms of the KL divergence.
+
+Properties of the KL divergence:
+
+-   It is always non-negative $D_{KL}(P || Q) \geq 0$, a result known as "Gibbs inequality", with $D_{KL}(P || Q)$ equal to zero iff $P = Q$ almost everywhere.
+
+-   No upper-bound exists for the general case. However, it is shown that if $P$ and $Q$ are two discrete probability distributions built by distributing the same discrete quantity, then the maximum value of $D_{KL}(P || Q)$ can be calculated.
+
+-   KL divergence remains well-defined for continuous distributions, and furthermore is invariant under parameter transformations.
+
+-   KL divergence is additive for independent distributions, in much the same way as Shannon entropy.
+
+-   There are 2 more but were skipped because of lack of minimal understanding.
+
+One might be tempted to call relative entropy a "distance metric" on the space of probability distributions, but this would not be correct as it is not symmetric (i.e., $D_{KL} (P || Q) \neq D_{KL}(Q||P)$ ) nor does it satisfy the triangle inequality.
+
+------------------------------------------------------------------------
+
+Straight from JAGS user manual 2017 (<https://sourceforge.net/projects/mcmc-jags/files/Manuals/4.x/>).
+
+START OF EXCERPT
+
+6.3. Functions associated with distribution
+
+All distribution sin JAGS have a log density function associated withi them. For example, if variable $x$ has a normal distribution with mean $mu$ and precision $tau$:
+
+$$
+x ~ \sim dnorm(mu, tau)
+$$
+
+then the log density of $x$ is given by
+
+$$
+ldx \leftarrow logdensity.norm(x, mu, tau)
+$$
+
+In general, if "dfoo" is the name of a distribution then the associated log density function is "logdensity.foo". The first argument of the log-density function is the sample value at which the log-density is evaluated and the remaining arguments are the parameters of the distribution <!--# posterior parameters i'd like to think -->.
+
+FINISH OF EXCERPT
+
+Maybe say that u r not entirely sure if this is giving u what u need (the "posterior" log likelihood or posterior predictive density), and that u still need to check JAGS codebase to make sure because it's not clearly explained in the user manual.
+
+search for the first time "density" comes up in the manual
+
+------------------------------------------------------------------------
+
+THINGS TO SAY AT SOME TIME.
+
+-   for a sneak peak into information theory, check colah's introduction.
+
+-   for a deeper dive, check "Information Theory: A tutorial introduction" by James V. Stone.
+
+-   check "students guide to bayesian statistics" by Ben Lambert for more info on ic, cv, and predictive accuracy in general
+
+-   why is the loglikelihood the measure of a model goodness of fit? 1. to be explained when deeply understood... (may be deeply understood after reading
+
+-   say at the end of a note or explanation when u believe the explanation is not yet fully satisfying.
+
+-   Why not use IC such as AIC, DIC or WAIC instead? NOTE explaining. Maybe do something simple. Remember to include that AIC, DIC and WAIC all have the same """pattern/structure"""" of being the modelFit - penalty (check on bens vid if this is correct)
+
+-   is there a difference when using complete, partial or non pooled data? note to explain and cite.
+
+-   DISCLAIMER: since these are only my personal notes posted online, some things are written by me, whereas others are just excerpts from the bibliography I cite. For simplicity, I avoid being too formal with the citations, but remember that some paragraphs may be a frankenstein's monster type mixture of other sources. Maybe say that if you find a sentence or paragraph that you feel that clearly explains something, you just leave it as it is (or clone it). But many times that's not how I feel about an explanation, so I change something previously written by someone else or I write something entirely new.
+
+-   Say somewhere that corrections or other type of constructive criticism is welcome (maybe check how colah says this), and maybe dont say it until you post it online.
+
+-   Ben Lambert explains X in a friendly way, but for a more rigorous explanation check X paper (for example, in the case of measures of predictive accuracy and IC-CV)
+
+-   Explain at the top how to "clone" the project (that is, download the entire project) from github and how to install the packages, use renv, docker, etc. Maybe point to the docker and git pages for installation guidelines. Explain that the project will be downloaded in whatever folder you are in when using the terminal. Also can point to the github website where it explains how to clone a project without the terminal.
+
+-   Say that if opening with the latest Rstudio version, remember to switch to the visual editor.
+
+-   Make some sort of introduction (maybe with an index) saying what the document is going to talk about and why (with "why" i mean something like "we are going to learn X theory in order to be able to understand Y, and then use that to define the steps to do the LFO."
+
+-   Maybe do boxes in between the paragraphs instead of notes at the end, and explain at the beginning that there will be boxes diving deeper on some of the terms or concepts but are not needed to follow how to do the exact LFO, so feel free to skip them.
+
+-   Maybe say something like "if you are not comfortable with expectations, I'd suggest you read appendix E from stone's introduction to information theory. "
+
+-   Should I send this to distill or to the stan forum?
+
+-   Maybe publish it on medium, with a name something like "model comparison: a bayesian and information theoretic perspective".
+
+-   Maybe the order of the post should be: state the problem (estimate out of sample predictive accuracy), introduce the idea of f(xnew) vs p(xnew\|x), do an information theory introduction, show the KL divergence, the ELPD and the EELPD, explain how cross validation comes natural after this ELPD (maybe explain how IC were attempts estimate what now CV does because of the small amount of data and computational power that used to be available), then explain how we would do the basic LOO-CV, then state the problem of using LOO-CV with time series, and then state the solution of LFO-CV.
+
+-   note or box: Where does the KL divergence comes from? and in a line below: to be explained when deeply understood... or: More on this when deeply understood...
+
+-   say that the document is yet not polished so there may be "gramatical?" mistakes.
+
+-   explain averages from distributions in a box, probably at the beggining, or just say that X appendix on stones book does a great explanation. Maybe check the appendix on probability rules and if it's good then say the same thing.
+
+-   Ben lambert does a friendly introduction to the topic of evaluating the predictive performance of a model (chapter 10), but gelman \[14\] does a thorough explanation of the topic.
+
+-   maybe explain the KL thing and when you say that the second part is the elpd, make a new section explaining where does the elpd (or elppd, cant remember) comes from.
+
+-   make a section explaining the difference when the data is complete, no or partially pooled.
+
+-   First explain LOO-CV and then go on to explaining LFO-CV
+
+-   con criterio y no en una principled way.
+
+-   Say that you tested 3 different models, each one with an increasing degree of complexity, and the middle model was the one with the highest predictive accuracy.
+
+-   maybe recommend michael betancourt writings for learning probability instead of stones appendix (which may be good but it's surely very short).
+
+-   when talking about KL divergence, maybe it's better to say: not yet fully understood, more on this later.
+
+DUDAS:
+
+-   what is jags doing with that loglikelihood function? does it give u a different thing when using a hierarchical vs a non-hierarchical model? maybe check the forums or directly read the source code (but since it's probably in c++ and java, its going to take a while to figure it out and im not really willing to learn c++ given that julia is already here). Also search for "JAGS cross validation" for more general info. If you dont find good info about what the heck is that loglikelihood doing (is it the "posterior" log likelihood? or the "prior" loglikelihood?, that is, is it giving me the log posterior predictive density (also called "log likelihood") or not?). Maybe it's just simpler to compute the proper posterior predictive density on my own. Or maybe see what that extract_loglikelihood() function from the loo package does.

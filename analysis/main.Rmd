@@ -1,0 +1,277 @@
+---
+title: "main"
+author: "franfram"
+date: "2021-09-04"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+structure of the document?
+
+Intro: we are going to compute LFO in JAGS.
+
+Some Theory: Theory on LOO, problem with time seres, LFO theory, Importance sampling to solve LFO's computational burden (maybe).
+
+Actual Code to do LFO in JAGS: explain in detail structure of objects of functions (such as that loo needs a loglik matrix with S x N dimensions.). Compare LOO scores with LFO, showing the overconfidence in LOO coming from using future data to estimate the past.
+
+## Introduction
+
+When working in discrete time, we will refer to the task of predicting a sequence of M future observations as M-step-ahead prediction (M-SAP).
+
+If the data points are not ordered in time, or if the goal is to assess the non-time-
+
+dependent part of the model, then we can use leave-one-out cross-validation (LOO-CV).
+
+However, using LOO-CV with times series models is problematic if the goal is to estimate the predictive performance for future time points. Leaving out only one observation at a time will allow information from the future to influence predictions of the past (i.e. data from times t + 1, t + 2, . . . , would inform predictions for time t). Instead, to apply the idea of cross-validation to the M-SAP case we can use what we will refer to as leave-future-out cross-validation (LFO-CV). LFO-CV does not refer to one particular prediction task but rather to various possible cross-validation approaches that all involve some form of prediction of future time points.
+
+Like exact LOO-CV, exact LFO-CV requires refitting the model many times to different subsets of the data, which is computationally expensive, in particular for full Bayesian inference.
+
+PSIS-LFO-CV, an algorithm that typically only requires refitting a time series model a small number times.
+
+The efficiency of PSIS-LFO-CV compared to exact LFO-CV relies on the ability to compute samples from the posterior predictive distribution (required for the importance sampling) in much less time than it takes to fully refit the model. This assumption is most likely justified when estimating a model using full Bayesian inference via MCMC, variational inference, or related methods as they are very computationally intensive. We do not make any assumptions about how samples from the posterior or the posterior predictive density at a given point in time have been obtained.
+
+Assume we have a time series of observations y = (y1 , y2 , . . . , yN ) and let L be the minimum number of observations from the series that we will require before making predictions for future data. Depending on the application and how informative the data are, it may not be possible to make reasonable predictions for yi+1 based on (y1 , . . . , yi) until i is large enough so that we can learn enough about the time series to predict future observations. Setting L = 10, for example, means that we will only assess predictive performance starting with observation y11, so that we always have at least 10 previous observations to condition on.
+
+In order to assess M-SAP performance, we would like to compute the predictive
+
+densities:
+
+p(yi+1:M \| y1:i ) = p(yi+1 , . . . , yi+M \| y1 , . . . , yi) (1)
+
+```{r}
+
+```
+
+"Importance sampling" is not a sampling method but a variant of monte carlo approximation. It gives us a way to approximate quantities of interest for a given distribution even if we cannot directly sample from that distribution
+
+## Computing approximate leave-one-out cross-validation using PSIS-LOO
+
+We can then use the **loo** package to compute the efficient PSIS-LOO approximation to exact LOO-CV:
+
+```{r}
+
+library("loo")
+
+# Extract pointwise log-likelihood
+# using merge_chains=FALSE returns an array, which is easier to 
+# use with relative_eff()
+log_lik_1 <- extract_log_lik(fit_1, merge_chains = FALSE)
+"the dimensions of this arrays are 1:1000, 1:4, 1:3020. That's because there are 3020 data points (N) and 1000 samples (S) per chain, and remember that the loglik matrix has to be S x N "
+"Have in mind that you have to make a 3-dim array with your JAGS object"
+"Still have to know what to do with a hierarchical model in terms of data"
+
+
+# log_lik_2 <- extract_log_lik(fit_1, merge_chains = TRUE) ## This is just a test. when merge_chains = TRUE, there's 1 dimension less on the array because all the chains are merged
+
+"extract_log_lik() function only works on stanfit objects, but we can extract the loglik of a JAGS object manually or with a custom function"
+
+# as of loo v2.0.0 we can optionally provide relative effective sample sizes
+# when calling loo, which allows for better estimates of the PSIS effective
+# sample sizes and Monte Carlo error
+
+r_eff <- relative_eff(exp(log_lik_1), cores = 2) 
+"have to test if relative_eff() works on a JAGS object. I guess it should because log_lik_1 is just an array, with no other attributes"
+
+
+# preferably use more than 2 cores (as many cores as possible)
+# will use value of 'mc.cores' option if cores is not specified
+loo_1 <- loo(log_lik_1, r_eff = r_eff, cores = 2)
+print(loo_1)
+
+```
+
+After running Stan, `log_lik` can be extracted (using the `extract_log_lik` function provided in the **loo** package) as an $S \times N$ matrix, where $S$ is the number of simulations (posterior draws) and $N$ is the number of data points.
+
+## 
+
+The printed output from the `loo` function shows the estimates $\widehat{\mbox{elpd}}_{\rm loo}$ (expected log predictive density), $\widehat{p}_{\rm loo}$ (effective number of parameters), and ${\rm looic} =-2\, \widehat{\mbox{elpd}}_{\rm loo}$ (the LOO information criterion).
+
+The line at the bottom of the printed output provides information about the reliability of the LOO approximation (the interpretation of the $k$ parameter is explained in `help('pareto-k-diagnostic')` and in greater detail in Vehtari, Simpson, Gelman, Yao, and Gabry (2019)). In this case the message tells us that all of the estimates for $k$ are fine.
+
+We can now compare the models on LOO using the `loo_compare` function:
+
+```{r, eval=FALSE}
+# Compare
+comp <- loo_compare(loo_1, loo_2)
+```
+
+This new object, `comp`, contains the estimated difference of expected leave-one-out prediction errors between the two models, along with the standard error:
+
+```{r, eval=FALSE}
+print(comp) # can set simplify=FALSE for more detailed print output
+```
+
+           elpd_diff se_diff
+    model2   0.0       0.0  
+    model1 -16.3       4.4  
+
+The first column shows the difference in ELPD relative to the model with the largest ELPD. In this case, the difference in `elpd` and its scale relative to the approximate standard error of the difference) indicates a preference for the second model (`model2`).
+
+## Introduction
+
+When working in discrete time, we will refer to the task of predicting a sequence of M future observations as M-step-ahead prediction (M-SAP).
+
+If the data points are not ordered in time, or if the goal is to assess the non-time-
+
+dependent part of the model, then we can use leave-one-out cross-validation (LOO-CV).
+
+However, using LOO-CV with times series models is problematic if the goal is to estimate the predictive performance for future time points. Leaving out only one observation at a time will allow information from the future to influence predictions of the past (i.e. data from times t + 1, t + 2, . . . , would inform predictions for time t). Instead, to apply the idea of cross-validation to the M-SAP case we can use what we will refer to as leave-future-out cross-validation (LFO-CV). LFO-CV does not refer to one particular prediction task but rather to various possible cross-validation approaches that all involve some form of prediction of future time points.
+
+Like exact LOO-CV, exact LFO-CV requires refitting the model many times to different subsets of the data, which is computationally expensive, in particular for full Bayesian inference.
+
+PSIS-LFO-CV, an algorithm that typically only requires refitting a time series model a small number times.
+
+The efficiency of PSIS-LFO-CV compared to exact LFO-CV relies on the ability to compute samples from the posterior predictive distribution (required for the importance sampling) in much less time than it takes to fully refit the model. This assumption is most likely justified when estimating a model using full Bayesian inference via MCMC, variational inference, or related methods as they are very computationally intensive. We do not make any assumptions about how samples from the posterior or the posterior predictive density at a given point in time have been obtained.
+
+Assume we have a time series of observations y = (y1 , y2 , . . . , yN ) and let L be the minimum number of observations from the series that we will require before making predictions for future data. Depending on the application and how informative the data are, it may not be possible to make reasonable predictions for yi+1 based on (y1 , . . . , yi) until i is large enough so that we can learn enough about the time series to predict future observations. Setting L = 10, for example, means that we will only assess predictive performance starting with observation y11, so that we always have at least 10 previous observations to condition on.
+
+In order to assess M-SAP performance, we would like to compute the predictive
+
+densities:
+
+p(yi+1:M \\\| y1:i ) = p(yi+1 , . . . , yi+M \\\| y1 , . . . , yi) (1)
+
+\`\`\`{r}
+
+\`\`\`
+
+"Importance sampling" is not a sampling method but a variant of monte carlo approximation. It gives us a way to approximate quantities of interest for a given distribution even if we cannot directly sample from that distribution
+
+## Computing approximate leave-one-out cross-validation using PSIS-LOO
+
+We can then use the \*\*loo\*\* package to compute the efficient PSIS-LOO approximation to exact LOO-CV:
+
+\`\`\`{r}
+
+library("loo")
+
+\# Extract pointwise log-likelihood
+
+\# using merge_chains=FALSE returns an array, which is easier to
+
+\# use with relative_eff()
+
+log_lik_1 \<- extract_log_lik(fit_1, merge_chains = FALSE)
+
+"the dimensions of this arrays are 1:1000, 1:4, 1:3020. That's because there are 3020 data points (N) and 1000 samples (S) per chain, and remember that the loglik matrix has to be S x N "
+
+"Have in mind that you have to make a 3-dim array with your JAGS object"
+
+"Still have to know what to do with a hierarchical model in terms of data"
+
+\# log_lik_2 \<- extract_log_lik(fit_1, merge_chains = TRUE) ## This is just a test. when merge_chains = TRUE, there's 1 dimension less on the array because all the chains are merged
+
+"extract_log_lik() function only works on stanfit objects, but we can extract the loglik of a JAGS object manually or with a custom function"
+
+\# as of loo v2.0.0 we can optionally provide relative effective sample sizes
+
+\# when calling loo, which allows for better estimates of the PSIS effective
+
+\# sample sizes and Monte Carlo error
+
+r_eff \<- relative_eff(exp(log_lik_1), cores = 2)
+
+"have to test if relative_eff() works on a JAGS object. I guess it should because log_lik_1 is just an array, with no other attributes"
+
+\# preferably use more than 2 cores (as many cores as possible)
+
+\# will use value of 'mc.cores' option if cores is not specified
+
+loo_1 \<- loo(log_lik_1, r_eff = r_eff, cores = 2)
+
+print(loo_1)
+
+\`\`\`
+
+After running Stan, \`log_lik\` can be extracted (using the \`extract_log_lik\` function provided in the \*\*loo\*\* package) as an \$S \\times N\$ matrix, where \$S\$ is the number of simulations (posterior draws) and \$N\$ is the number of data points.
+
+## 
+
+The printed output from the \`loo\` function shows the estimates \$\\widehat{\\mbox{elpd}}\_{\\rm loo}\$ (expected log predictive density), \$\\widehat{p}\_{\\rm loo}\$ (effective number of parameters), and \${\\rm looic} =-2\\, \\widehat{\\mbox{elpd}}\_{\\rm loo}\$ (the LOO information criterion).
+
+The line at the bottom of the printed output provides information about the reliability of the LOO approximation (the interpretation of the \$k\$ parameter is explained in \`help('pareto-k-diagnostic')\` and in greater detail in Vehtari, Simpson, Gelman, Yao, and Gabry (2019)). In this case the message tells us that all of the estimates for \$k\$ are fine.
+
+We can now compare the models on LOO using the \`loo_compare\` function:
+
+\`\`\`{r, eval=FALSE}
+
+\# Compare
+
+comp \<- loo_compare(loo_1, loo_2)
+
+\`\`\`
+
+This new object, \`comp\`, contains the estimated difference of expected leave-one-out prediction errors between the two models, along with the standard error:
+
+\`\`\`{r, eval=FALSE}
+
+print(comp) \# can set simplify=FALSE for more detailed print output
+
+\`\`\`
+
+elpd_diff se_diff
+
+model2 0.0 0.0
+
+model1 -16.3 4.4
+
+The first column shows the difference in ELPD relative to the model with the largest ELPD. In this case, the difference in \`elpd\` and its scale relative to the approximate standard error of the difference) indicates a preference for the second model (\`model2\`).
+
+\# LFO stuff
+
+If there were no time dependence in the data or if the focus is to assess the non-time-dependent part of the model, we could use methods like leave-one-out cross-validation (LOO-CV). For a data set with \$N\$ observations, we refit the model \$N\$ times, each time leaving out one of the \$N\$ observations and assessing how well the model predicts the left-out observation. LOO-CV is very expensive computationally in most realistic settings, but the Pareto smoothed importance sampling (PSIS, Vehtari et al, 2017, 2019) algorithm provided by the \*loo\* package allows for approximating exact LOO-CV with PSIS-LOO-CV. PSIS-LOO-CV requires only a single fit of the full model and comes with diagnostics for assessing the validity of the approximation.
+
+With a time series we can do something similar to LOO-CV but, except in a few cases, it does not make sense to leave out observations one at a time because then we are allowing information from the future to influence predictions of the past (i.e., times \$t + 1, t+2, \\ldots\$ should not be used to predict for time \$t\$). To apply the idea of cross-validation to the \$M\$-SAP case, instead of leave-\*one\*-out cross-validation we need some form of leave-\*future\*-out cross-validation (LFO-CV).
+
+Although PSIS-LOO-CV provides an efficient approximation to exact LOO-CV, until now there has not been an analogous approximation to exact LFO-CV that drastically reduces the computational burden while also providing informative diagnostics about the quality of the approximation. In this case study we present PSIS-LFO-CV, an algorithm that typically only requires refitting the time-series model a small number times and will make LFO-CV tractable for many more realistic applications than previously possible.
+
+More details can be found in our paper about approximate LFO-CV (Bürkner, Gabry, & Vehtari, 2020), which is available as a preprint on arXiv ([\<https://arxiv.org/abs/1902.06281>](%5Bhttps://arxiv.org/abs/1902.06281){.uri}).\](<https://arxiv.org/abs/1902.06281>){.uri}).)
+
+## 
+
+## \$M\$-step-ahead predictions
+
+Assume we have a time series of observations \$y = (y_1, y_2, \\ldots, y_N)\$ and let \$L\$ be the \*minimum\* number of observations from the series that we will require before making predictions for future data. Depending on the application and how informative the data is, it may not be possible to make reasonable predictions for \$y\_{i+1}\$ based on \$(y_1, \\dots, y\_{i})\$ until \$i\$ is large enough so that we can learn enough about the time series to predict future observations. Setting \$L=10\$, for example, means that we will only assess predictive performance starting with observation \$y\_{11}\$, so that we always have at least 10 previous observations to condition on.
+
+m(We will set L=4 and then see what happens)
+
+# LFO stuff
+
+If there were no time dependence in the data or if the focus is to assess the non-time-dependent part of the model, we could use methods like leave-one-out cross-validation (LOO-CV). For a data set with $N$ observations, we refit the model $N$ times, each time leaving out one of the $N$ observations and assessing how well the model predicts the left-out observation. LOO-CV is very expensive computationally in most realistic settings, but the Pareto smoothed importance sampling (PSIS, Vehtari et al, 2017, 2019) algorithm provided by the *loo* package allows for approximating exact LOO-CV with PSIS-LOO-CV. PSIS-LOO-CV requires only a single fit of the full model and comes with diagnostics for assessing the validity of the approximation.
+
+With a time series we can do something similar to LOO-CV but, except in a few cases, it does not make sense to lcomeseave out observations one at a time because then we are allowing information from the future to influence predictions of the past (i.e., times $t + 1, t+2, \ldots$ should not be used to predict for time $t$). To apply the idea of cross-validation to the $M$-SAP case, instead of leave-*one*-out cross-validation we need some form of leave-*future*-out cross-validation (LFO-CV).
+
+Although PSIS-LOO-CV provides an efficient approximation to exact LOO-CV, until now there has not been an analogous approximation to exact LFO-CV that drastically reduces the computational burden while also providing informative diagnostics about the quality of the approximation. In this case study we present PSIS-LFO-CV, an algorithm that typically only requires refitting the time-series model a small number times and will make LFO-CV tractable for many more realistic applications than previously possible.
+
+More details can be found in our paper about approximate LFO-CV (Bürkner, Gabry, & Vehtari, 2020), which is available as a preprint on arXiv (<https://arxiv.org/abs/1902.06281>).
+
+## 
+
+## $M$-step-ahead predictions
+
+Assume we have a time series of observations $y = (y_1, y_2, \ldots, y_N)$ and let $L$ be the *minimum* number of observations from the series that we will require before making predictions for future data. Depending on the application and how informative the data is, it may not be possible to make reasonable predictions for $y_{i+1}$ based on $(y_1, \dots, y_{i})$ until $i$ is large enough so that we can learn enough about the time series to predict future observations. Setting $L=10$, for example, means that we will only assess predictive performance starting with observation $y_{11}$, so that we always have at least 10 previous observations to condition on.
+
+m(We will set L=4 and then see what happens)
+
+In order to assess $M$-SAP performance we would like to compute the predictive densities
+
+$$
+p(y_{i+1:M} \,|\, y_{1:i}) = 
+  p(y_{i+1}, \ldots, y_{i + M} \,|\, y_{1},...,y_{i}) 
+$$
+
+for each $i \in \{L, \ldots, N - M\}$. The quantities $p(y_{i+1:M} \,|\, y_{1:i})$ can be computed with the help of the posterior distribution $p(\theta \,|\, y_{1:i})$ of the parameters $\theta$ conditional on only the first $i$ observations of the time-series:
+
+$$
+p(y_{i+1:M} \,| \, y_{1:i}) = 
+  \int p(y_{i+1:M} \,| \, y_{1:i}, \theta) \, p(\theta\,|\,y_{1:i}) \,d\theta. 
+$$
+
+Having obtained $S$ draws $(\theta_{1:i}^{(1)}, \ldots, \theta_{1:i}^{(S)})$ from the posterior distribution $p(\theta\,|\,y_{1:i})$, we can estimate $p(y_{i+1:M} | y_{1:i})$ as
+
+$$
+p(y_{i+1:M} \,|\, y_{1:i}) \approx \frac{1}{S}\sum_{s=1}^S p(y_{i+1:M} \,|\, y_{1:i}, \theta_{1:i}^{(s)}).
+$$
+
+## Approximate $M$-SAP using importance-sampling {#approximate_MSAP}

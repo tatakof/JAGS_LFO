@@ -1,0 +1,51 @@
+---
+title: "test"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+| jjjjjjjjjjjjjjjjjj
+| kkkkkkkkkkkkkkk
+
+termhellooooo
+
+:   this is a test this is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a testthis is a test
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+hhh
+
+THIS THE ONLY THING THAT WORKS PROPERLY ON HTML.
+
+hhh
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+testing tables
+
++----------------------------------------------------------------------------------------------+
+| On KL divergence                                                                             |
++==============================================================================================+
+| daaaaaaaaaaaaaaaaaaaaaaaaaasaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa |
+|                                                                                              |
+| d                                                                                            |
+|                                                                                              |
+| d                                                                                            |
+|                                                                                              |
+| d                                                                                            |
+|                                                                                              |
+| d                                                                                            |
+|                                                                                              |
+| d                                                                                            |
+|                                                                                              |
+| d                                                                                            |
+|                                                                                              |
+| d                                                                                            |
++----------------------------------------------------------------------------------------------+
+
+tesxt text

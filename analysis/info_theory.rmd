@@ -1,9 +1,15 @@
 ---
 title: "Untitled"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
+
+make sure:
+
+-   you are always using the same notation conventions, such as: p(x) vs P(x), p(xnew) vs p(x'), data as x or as y, and so on.
+
+-   state the rules of probability or the log identities when needed.
 
 Bugs:
 
@@ -13,11 +19,41 @@ Bugs:
 
 index:
 
--   why are we interested in prediction accuracy? (good paragraph from gelman).
+-   <div>
 
--   what is IC doing? (good shit from gelman and from lambert).
+    1.  why are we interested in prediction accuracy? (good paragraph from gelman).
 
--   what should we do if we are doing LOO-CV. for illustration and to stand the difference with LFO-CV
+    </div>
+
+-   <div>
+
+    2.  or 3. idea of posterior predictive distribution vs true but unknown distribution. KL divergence, general idea, some properties (more things in a box). Maybe in another box the note that we have both the prior and a posterior predictive distribution.
+
+    </div>
+
+-   <div>
+
+    3.  or 2. how do we measure predictive accuracy (general probability scoring rules, then logscores)
+
+    </div>
+
+-   <div>
+
+    4.  (maybe in a box) what is IC doing? (good shit from gelman and from lambert).
+
+    </div>
+
+-   <div>
+
+    5.  In the case of a hierarchical model, What are we trying to predict? in group or another group? differences in the posterior predictive distribution and why we are not bothered by the non-uniqueness of the posterior predictive distribution.
+
+    </div>
+
+-   
+
+-   what should we do if we are doing LOO-CV. (for illustration and to stand the difference with LFO-CV).
+
+-   also here state what do we need for computing loocv with the loo package and also check the loo package for how to use with different prediction objectives and thus predictive distributions. (a matrix with log likelihoods?; state the problem of jags documentation that it says it can give you the loglikelihood (which is what the predictive distribution is sometimes called) but it's not specified if its giving you the prior or posterior distribution. to solve this, see if the chapter where that definition is gives you a hint, or can you run the model without data to see if the log likelihood appears? or maybe use different data but same priors and see if there's a difference between the matrix jags retrieves, maybe add a random value to each data point and check if the logposterior is the same, but the problem here is that there's always some sampling variability, or is the set.seed what completely avoids this? maybe run the model many times with the same seed, save the log likelihoods and then compare them with that package to compare datasets.).
 
 -   what should we do if we are doing LFO-CV.
 
@@ -73,7 +109,7 @@ Cross entropy can be expressed as a function of both the true probability distri
 
 Cross entropy: $H(\pmb{p, q})-\sum_i \, p_i \,\, log_2(q_i)$
 
-**The cross entropy equation looks very much like the entropy equation, but instead of computing the log of the true probability, we use the log of the predicted probability, which is equal to the message length. If our predictions are perfect, thats is the predicted distribution is equal to the true distribution, then the cross-entropy is simply equal to the entropy**. But if the distributions differ, then the cross-entropy will be greater than the entropy by some number of bits (m' so i guess its somehow related to the specific "encoding", but what is this encoding mean? the distribution you think thats true? that is, the predicted distribution?. ). **This amount by which the cross-entropy exceeds the entropy is called the relative entropy, or more commonly the Kullback-Leibler Divergence (or KL Divergence)**. Thus:
+**The cross entropy equation looks very much like the entropy equation, but instead of computing the log of the true probability, we use the log of the predicted probability, which is equal to the message length. If our predictions are perfect, thats is the predicted distribution is equal to the true distribution, then the cross-entropy is simply equal to the entropy**. But if the distributions differ, then the cross-entropy will be greater than the entropy by some number of bits (m' so i guess its somehow rela ted to the specific "encoding", but what is this encoding mean? the distribution you think thats true? that is, the predicted distribution?. ). **This amount by which the cross-entropy exceeds the entropy is called the relative entropy, or more commonly the Kullback-Leibler Divergence (or KL Divergence)**. Thus:
 
 Cross-entropy = Entropy + KL Divergence
 
@@ -149,7 +185,7 @@ So the kullback liebler divergence us exactly the difference in the lenth or the
 
 from ben lambert's Ideal measure of a model's predictive fit. <https://www.youtube.com/watch?v=MEqrDu-ytM8&list=PLwJRxp3blEvZ8AKMXOy0fc0cqT61GsKCG&index=35>.
 
-Given a posterior distribution $p(\theta | \pmb{x})$, we can produce a posterior predictive distribution, which for a single new data point equals $p(x^{new} | \pmb{x})$ (more detail on this on here NOTE), and this just tells us what is our sort of best prediction or distribution which ecompasses what we think about predictions for the next data point given that we have observed a data vector $\pmb{x}$. This distribution $p(x^{new} | \pmb{x})$ is an approximation to some unkown true data generating process which, we can call $f(x^{new})$. Ideally, if we knew what the distribution $f(x^{new})$ was, we could compare it with our posterior predictive distribution $p(x^{new} | \pmb{x})$. The best way we could compare this two distributions (if we knew both of them), is with what is called the Kullback-Leibler divergence ($D_{KL}$, also known as "relative entropy"), which is just a general measure of the difference between two distributions.
+Given a posterior distribution $p(\theta | \pmb{x})$, we can produce a posterior predictive distribution, which for a single new data point equals $p(x^{new} | \pmb{x})$ (m' more detail on this on here NOTE), and this just tells us what is our sort of best prediction or distribution which ecompasses what we think about predictions for the next data point given that we have observed a data vector $\pmb{x}$. This distribution $p(x^{new} | \pmb{x})$ is an approximation to some unkown true data generating process which, we can call $f(x^{new})$. Ideally, if we knew what the distribution $f(x^{new})$ was, we could compare it with our posterior predictive distribution $p(x^{new} | \pmb{x})$. The best way we could compare this two distributions (if we knew both of them), is with what is called the Kullback-Leibler divergence ($D_{KL}$, also known as "relative entropy"), which is just a general measure of the difference between two distributions.
 
 <!--# from wiki: The KL divergence is a measure of how one probability distribution is different from a second, reference probability distribution. In the simplified case, a relative entropy of 0 indicates that the two distributions in question have identical quantities of information. [...] Consider two probability distributions P and Q. Usually, P represents the data, the observations, or a measures probability distribution. Distribution Q represents instead a theory, a model, a description or an approximation of P. The KL divergence is then interpreted as the average difference of the number of bits required for encoding samples of P using a code optimized for Q rather than one optimized for P (('m im starting to think that "code" is equivalent to "distribution" in statistics, because codes that are optimized always imply a certain distribution, since the optimization aims to use shorter codes for very likely outcomes')). [...] Various conventions exist for referreing to $D_{KL}(P||Q)$ in words. Often it is referred to as the divergence between P and Q, but this fails to convey the fundamental asymmetry in the relation. Sometimes, as in this article, it may be described as the divergence of P from Q or as the divergence from Q to P. This reflects the asymmetry in Bayesian inference, which starts from a prior Q and updates to the posterior P. Another common way to refer to $D_{KL}(P||Q)$ is as the relative entropy of P with respect to Q.  -->
 
@@ -159,7 +195,11 @@ $$
 D_{KL}(f(x^{new}) \rightarrow p(x^{new} | \pmb{x} )) = \int f(x^{new})\ log\ f(x^{new})dx^{new}\ -\ \int f(x^{new})\ log\ p(x^{new}| \pmb x)\ dx^{new} 
 $$
 
-The first term, $\int f(x^{new})\ log \ f(x^{new})dx^{new}$ <!--# isnt there a minus sign missing at the beggining? or is it that the second term "should" come first and there's a minus minus sign (thus plus sign) to the first term? -->, is essentially a constant because it only depends on $f(x^{new})$ and so that doesn't tell us anything about how well our model fits the data (and there's nothing we can do about that term). Whereas the second term, $\int f(x^{new})\ log\ p(x^{new}| \pmb x)\ dx^{new}$ , contains $f(x^{new})$ (our unknown true data generation process) but also the posterior predictive distribution $p(x^{new} | \pmb{x})$ which depends on the model that we fit (so there's something we can do about this term). This second term is called the "Expected Log Predictive Density" (ELPD) <!--# "expected" cuz we are integrating with respect to xnew? check gelman -->. We want to minimize the KL divergence because when $D_{KL} = 0$, then $f(x^{new}) = p(x^{new} | \pmb{x})$ (that is, our approximation $p(x^{new} | \pmb{x})$ of the unknown true data generation process $f(x^{new})$ is correct). And the only way we can minimize the KL divergence is by maximizing the ELPD <!--# maximizing because of the minus sign -->.
+<!--# seeing what aurelion gereon said about kl div, that is is equal to the cross entropy minus the entropy, it seems like there's a minus sign, cuz the first term is the entropy of the true distribution (but missing a minus sign cuz that form of entropy has a negative due t the log) and the second term is the cross entropy, which is also negative and thus there should be a plus sign due to the double minus. Seems like its the kl divergence given by the entropy minus the cross entropy but all multiplied by -1 to invert the signs of each term. Does this have anything to do with the asymmetry of the kl divergence?  -->
+
+The first term, $\int f(x^{new})\ log \ f(x^{new})dx^{new}$ <!--# isnt there a minus sign missing at the beggining? or is it that the second term "should" come first and there's a minus minus sign (thus plus sign) to the first term? maybe its related to the mathmatical definition of cross-entropy and its relation with entropy and KL divergence. -->, is essentially a constant because it only depends on $f(x^{new})$ and so that doesn't tell us anything about how well our model fits the data (and there's nothing we can do about that term). Whereas the second term, $\int f(x^{new})\ log\ p(x^{new}| \pmb x)\ dx^{new}$ , contains $f(x^{new})$ (our unknown true data generation process) but also the posterior predictive distribution $p(x^{new} | \pmb{x})$ which depends on the model that we fit (so there's something we can do about this term). This second term is called the "Expected Log Predictive Density" (ELPD) <!--# "expected" cuz we are integrating with respect to xnew? check gelman -->. We want to minimize the KL divergence because when $D_{KL} = 0$, then $f(x^{new}) = p(x^{new} | \pmb{x})$ (that is, our approximation $p(x^{new} | \pmb{x})$ of the unknown true data generation process $f(x^{new})$ is correct). And the only way we can minimize the KL divergence is by maximizing the ELPD <!--# maximizing because of the minus sign -->.
+
+<!--# maybe explain the KL divergence saying what each term is, i.e., this term is the entropy and this other term is the cross entropy.  -->
 
 The reason why the second term is called the Expected Log Predictive Density (ELPD) is that, since we are integrating with respect to $x^{new}$, what we obtain is the expected value $E$ under the true data generating process $f$ (thus, $E_f$) of the log of the predictive density $log \ p(x^{new} | \pmb{x})$ (the posterior predictive distribution is also called "predictive density").
 
@@ -499,6 +539,8 @@ $$
 = \overline{lppd}_{-i} - lppd_{loo}
 $$
 
+<!--# check if the loo package makes this bias-correction -->
+
 Cross-validation is like WAIC in that it requires data to be divided into disjoint, ideally conditionally independent, pieces. This represents a limitation of the approach when applied to structured models. In adittion, cross-validation can be computationally expensive except in settings where shortcuts are available to approximate the distributions $p_{post(-i)}$ without having to re-fit the model each time.
 
 Bayesian cross-validation works also with singular models <!--# according to https://arxiv.org/abs/1309.0911 "In this paper, we are concerned with Bayesian information criteria in the context of singular model selection problems, that is, problems that involve models with Fisher-information
@@ -612,6 +654,64 @@ search for the first time "density" comes up in the manual
 
 ------------------------------------------------------------------------
 
+START BOX prior vs posterior predictive distributions
+
+[Prior and posterior predictive distributions]{.ul}.
+
+Concepts of prior and posterior predictive distribution. The prior predictive distribution is just the distribution of data which we think we are going to obtain before we actually see the data $y$, thus the $prior\ predictive\ distribution = p(y)$. This is based on our prior sort of knowledge about the situation. How can we calculate it? the idea is that we're trying to obtain is the probability of our data $y$. This is a marginal probability and we know that we can get to a marginal probability by integrating out all dependences, in this case, $\theta$ of our joint probability $p(y, \theta)$ across all the range of values theta can take ($\theta \in \Theta$) . So by integrating this out we're removing all this theta dependence and we're just left with the marginal probability $p(y)$. So
+
+$$
+p(y) = \int_{\theta \in \Theta} p(y,\theta)d\theta
+$$
+
+and through the product rule of probability, which states that $p(A, B) = p(A|B)p(B)$, we get:
+
+$$
+p(y) = \int_{\theta \in \Theta} p(y,\theta)d\theta = \int_{\theta \in \Theta} p(y|\theta)p(\theta)d\theta. 
+$$
+
+where $p(y|\theta)$ is the likelihood and $p(\theta)$ the prior.
+
+And with the posterior predictive distribution we essentially mean what value of data we would expect to obtain (that is, what our model would suggest after using the first observed data for fitting said model) if were to repeat the observation. We will call this new observation of data, $y'$. So how do we calculate this posterior predictive distribution? The idea is that we are trying to calculate the probability of certain value of the new data $y'$ given that we have observed the current data $y$ (the one used to fit the model), that is, $p(y'|y)$. We can get this conditional probability by integrating out the joint probability of $y'$ and $\theta$, acrross al range of theta ($\Theta$). Thus,
+
+$$
+p(y'|y) = \int_{\theta \in \Theta} p(y',\theta |y)d\theta 
+$$
+
+and through the chainrule of probability?, which states that $p(A, B |C) = p(A|B, C) p(B|C)$, we get:
+
+$$
+p(y'|y) = \int_{\theta \in \Theta} p(y',\theta |y)d\theta = \int_{\theta \in \Theta} p(y'|\theta, y) p(\theta|y)d\theta
+$$
+
+and normally when you condition on $\theta$, our new observation $y'$ is independent of the current observation $y$ (that is, once you know $\theta$, $y$ doesn't provide any extra information about $y'$ ) and thus we can eliminate the dependency of $y'$ on $y$, so we get:
+
+$$
+p(y'|y) = \int_{\theta \in \Theta} p(y'|\theta) p(\theta|y)d\theta
+$$
+
+where $p(y'|\theta)$ is the likelihood and $p(\theta|y)$ is the posterior distribution.
+
+END BOX
+
+(both prior and predictive distributions are valid probability distributions, so the area beneath the pdfs should integrate to 1)
+
+<!--# need to explain why a joint probability of A and B conditioned on C equals the prob of A given B and C times the prob of B given C. (maybe you explained it in that damianos paper on HMMs). I think it was called the chain rule of probability or chain rule of joint probability)  -->
+
+------------------------------------------------------------------------
+
+From Adam Luise: Intuitively understanding the shannon entropy. <https://www.youtube.com/watch?v=0GCGaw0QOhA&t=1s>
+
+The Shannon Entopy $H(X)$ measures the uncertainty associated to a probability distribution.
+
+$$
+H(X) = -\sum_{i} P(x_i)\ log\ P(X_i)
+$$
+
+Discussion of shannong entropy from the perspective of information transfer.
+
+------------------------------------------------------------------------
+
 THINGS TO SAY AT SOME TIME.
 
 -   for a sneak peak into information theory, check colah's introduction.
@@ -671,6 +771,10 @@ THINGS TO SAY AT SOME TIME.
 -   maybe recommend michael betancourt writings for learning probability instead of stones appendix (which may be good but it's surely very short).
 
 -   when talking about KL divergence, maybe it's better to say: not yet fully understood, more on this later.
+
+-   Maybe insert the word "GAP" where you know there's a gap in your explanation, and explain at some point that you will fill them up as you understand it more.
+
+-   say: for a deeper dive YOU CAN CHECK stones book (not, you should check or I recommend, cuz I dont really have the knowledge to make such a statement).
 
 DUDAS:
 

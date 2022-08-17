@@ -1,0 +1,69 @@
+---
+title: "Notes from Vehtari's paper"
+output: html_document
+---
+
+Everything between quotation marks are excerpts from Vehtari et. al. 2017 [paper](https://link.springer.com/article/10.1007/s11222-016-9696-4).
+
+"Leave-one-out cross-validation (LOO) and the widely applicable information criterion (WAIC) are methods for estimating pointwise out-of-sample prediction accuracy from a fitted Bayesian model using the log-likelihood evaluated at the posterior simulations of the parameter values."
+
+This is the crux of the thing.
+
+"We introduce an efficient computation of LOO using Pareto-smoothed importance sampling (PSIS), a new procedure for regularizing importance weights. Although WAIC is asymptotically equal to LOO, we demonstrate that PSIS-LOO is more robust in the finite case with weak priors or influential observations. As a byproduct of our calculations, we also obtain approximate standard errors for estimated predictive errors and for comparison of predictive errors between two models."
+
+"After fitting a Bayesian model we often want to measure its predictive accuracy, for its own sake or for purposes of model comparison, selection, or averaging (Geisser and Eddy 1979; Hoeting et al. 1999; Vehtari and Lampinen 2002; Ando and Tsay 2010; Vehtari and Ojanen 2012). Cross-validation and information criteria are two approaches to estimating out-of-sample predictive accuracy using within-sample fits (Akaike 1973; Stone 1977). In this article we consider computations using the log-likelihood evaluated at the usual posterior simulations of the parameters."
+
+"Exact cross-validation requires re-fitting the model with different training sets. Approximate leave-one-out cross-validation (LOO) can be computed easily using importance sampling (IS; Gelfand et al. 1992; Gelfand 1996) but the resulting estimate is noisy, as the variance of the importance weights can be large or even infinite (Peruggia 1997; Epifani et al. 2008). Here we propose to use Pareto smoothed importance sampling (PSIS), a new approach that provides a more accurate and reliable estimate by fitting a Pareto distribution to the upper tail of the distribution of the importance weights. PSIS allows us to compute LOO using importance weights that would otherwise be unstable."
+
+"WAIC is fully Bayesian in that it uses the entire posterior distribution, and it is asymptotically equal to Bayesian cross-validation. Unlike DIC, WAIC is invariant to parametrization and also works for singular models."
+
+"Although the examples provided in this paper all use Stan, the loo package is independent of Stan and can be used with models estimated by other software packages or custom user-written algorithms."
+
+\
+"Also suppose we have a prior distribution p(θ ), thus yielding a posterior distribu-
+
+tion p(θ \|y) and a posterior predictive distribution p( ỹ\|y) = ∫ p( ỹi \|θ ) p(θ \|y)dθ ."
+
+"Implementation is not automatic, though, because of the need to compute the separate factors p(yi \|θ ) in the likelihood. Stan works with the joint density and in its usual computations does not "know" which parts come from the prior and which from the likelihood. Nor does Stan in general make use of any factorization of the likelihood into pieces corresponding to each data point. Thus, to compute these measures of predictive fit in Stan, the user needs to explicitly code the factors of the likelihood (actually, the terms of the log-likelihood) as a vector. We can then pull apart the separate terms and compute cross-validation and WAIC at the end, after all simulations have been collected. Sample code for carrying out this procedure using Stan and the loo R package is provided in Appendix. This code can be adapted to apply our procedure in other computing languages."
+
+"For the models implemented in rstanarm, we have preprogrammed many tasks, including computing and saving the pointwise predictive measures and importance ratios which we use to compute WAIC and PSIS-LOO."
+
+So to compute WAIC and PSIS-LOO we need to compute and save the pointwise predictive measures and importance ratios. The thing is, which are these?
+
+"Watanabe (2010) shows that WAIC gives an asymptotically unbiased estimate of the out-of-sample prediction error---this does not hold for hierarchical models with weak prior information as shown by Gelman et al. (2014)---but exact LOO is slightly biased as the LOO posteriors use only n − 1 observations. WAIC's different behavior can be understood through the truncated Taylor series correction to the lpd, that is, not using the entire series will bias it towards lpd (see Sect. 2.2). The bias in LOO is negligible when n is large, but with small n it can be be larger."
+
+"If the goal is robust estimation of predictive performance, then exact LOO is the best general choice because the error is limited even in the case of weak priors. Of the approximations, PSIS-LOO offers the best balance as well as diagnostics for identifying when it is likely failing."
+
+"Further research needs to be done to evaluate the performance in model comparison of (24) and the corresponding standard error formula for LOO. Cross-validation and WAIC should not be used to select a single model among a large number of models due to a selection induced bias as demonstrated, for example, by Piironen and Vehtari (2016)."
+
+"Some difficulties persist, however. As discussed above, any predictive accuracy measure involves two definitions: (1) the choice of what part of the model to label as "the likelihood", which is directly connected to which potential replications are being considered for out-of-sample prediction; and (2) the factorization of the likelihood into "data points", which is reflected in the later calculations of expected log predictive density."
+
+["The loo R package provides the functions loo() and waic() for efficiently computing PSIS-LOO and WAIC for fitted Bayesian models using the methods described in this paper. These functions take as their argument an S × n log-likelihood matrix, where S is the size of the posterior sample (the number of retained draws) and n is the number of data points.7.]{.ul} The required means and variances across simulations are calculated and then used to compute the effective number of parameters and LOO or WAIC." CAREFUL WITH THIS PART
+
+"7 For models fit to large datasets it can be infeasible to store the entire log-likelihood matrix in memory. A function for computing the log-likelihood from the data and posterior draws of the relevant parameters may be specified instead of the log-likelihood matrix---the necessary data and draws are supplied as an additional argument---and columns of the log-likelihood matrix are computed as needed. This requires less memory than storing the entire log-likelihood matrix and allows loo to be used with much larger datasets."
+
+The loo() function returns hat(elpd) loo, hat(p)loo , looic = −2 hat(elpd) loo (to provide the output on the conventional scale of "deviance" or AIC), the pointwise contributions of each of these measures, and standard errors. \[...\] Also returned by the loo() function is the estimated shape parameter k̂ for the generalized Pareto fit to the importance ratios for each leave-one-out distribution. \[...\] The loo R package, however, is more general and does not require that a model be fit using Stan, as long as an appropriate log-likelihood matrix is supplied.
+
+\# Example code
+
+## Fit the model with Stan
+
+fit_1 \<- stan("logistic.stan")
+
+## Compute LOO
+
+log_lik_1 \<- extract_log_lik(fit_1)
+
+loo_1 \<- loo(log_lik_1)
+
+print(loo_1)
+
+\# Compare the models
+
+loo_diff \<- compare(loo_1, loo_2)
+
+print(loo_diff)
+
+# HIERARCHICAL DATASET PROBLEM STUFF
+
+The purpose of using LOO or WAIC is to estimate the accuracy of the predictive distribution p( ỹ i \|y). Computation of PSIS-LOO and WAIC (and AIC and  DIC) is based on computing terms log p(yi \|y) = log p(yi \|θ ) p(θ \|y) assuming some agreed-upon division of the data y into individual data points yi . Although often y i will denote a single scalar observation, in the case of hierarchical data, it may denote a group of observations. For example, in cognitive or medical studies we may be interested in prediction for a new subject (or patient), and thus it is natural in cross-validation to consider an approach where yi would denote all observations for a single subject and y−i would denote the observations for all the other subjects. In theory, we can use PSIS-LOO and WAIC in this case, too, but as the number of observations per subject increases it is more likely that they will not work as well.
